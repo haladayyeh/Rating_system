@@ -9,6 +9,11 @@ Base URL (local): `http://localhost:3000/api`
 Auth: بعد تسجيل الدخول السيرفر برجع token، والفرونت بيبعته بكل طلب بالـ header:
 `Authorization: Bearer <token>`
 
+Rate limits — إذا انتجاوزوا، السيرفر بيرجّع `429` مع `{ "error": "...", "retryAfterSeconds": 60 }`:
+- `POST /api/auth/login`: 10 محاولات كل 15 دقيقة لنفس الاسم من نفس الجهاز
+- `POST /api/ratings`: 20 طلب بالدقيقة
+- كل الـ API: 300 طلب بالدقيقة
+
 ---
 
 ## 1. Auth
@@ -69,8 +74,11 @@ Response 200:
 { "isOpen": false }
 ```
 
-### GET /api/students
-الطلاب اللي بيقدر يقيّمهم (بدون نفسه).
+### GET /api/students?q=sara
+بحث عن طالب بالاسم أو الـ intra login (بدون نفسه). بيرجّع أول 10 نتائج،
+والـ login المطابق بالضبط بيطلع أول. ما بيرجّع أي تقييمات أو متوسطات.
+- `q` لازم يكون حرفين على الأقل، وإلا بيرجّع 400: `{ "error": "Type at least 2 characters to search" }`
+- بدون `q` بيرجّع كل الطلاب.
 ```json
 [
   { "id": "u_2", "login": "sara", "name": "Sara Omar", "alreadyRated": false },
@@ -125,11 +133,13 @@ Errors 400:
   "totalStudents": 40,
   "studentsWhoRated": 31,
   "studentsWhoDidNotRate": 9,
+  "studentsBelowMinimum": 12,
   "openAbuseCases": 5
 }
 ```
 
-### GET /api/staff/students
+### GET /api/staff/students?q=khatib
+كل الطلاب، أو بحث بالاسم أو الـ intra login إذا بعتت `q`.
 ```json
 [
   { "id": "u_1", "login": "ahmad", "name": "Ahmad Ali", "average": 2.6,
@@ -163,8 +173,11 @@ Errors 400:
 ### GET /api/staff/windows/:id/participation
 ```json
 {
-  "voted":    [ { "id": "u_1", "login": "ahmad", "votesGiven": 4 } ],
-  "notVoted": [ { "id": "u_7", "login": "lina" } ]
+  "minVotes": 2,
+  "maxVotes": 5,
+  "voted":        [ { "id": "u_1", "login": "ahmad", "name": "Ahmad Ali", "votesGiven": 4, "reachedMinimum": true } ],
+  "notVoted":     [ { "id": "u_7", "login": "lina", "name": "Lina Haddad" } ],
+  "belowMinimum": [ { "id": "u_7", "login": "lina", "name": "Lina Haddad", "votesGiven": 0, "reachedMinimum": false } ]
 }
 ```
 
@@ -181,6 +194,50 @@ Errors 400:
 
 ### GET /api/staff/export.csv
 بيرجع ملف CSV للتحميل.
+
+---
+
+## 3.5 Leaderboard — "Top students"
+
+الستاف بيشوف الترتيب الكامل دايماً، وهو اللي بيقرر إذا ووقتيش يشاركه مع الطلاب.
+الترتيب حسب المتوسط (التقييمات المش ملغية)، وبيدخل فيه بس اللي عنده 3 تقييمات أو أكثر.
+
+### GET /api/staff/leaderboard?windowId=...   (Staff)
+```json
+{
+  "windows": [ { "id": "w_1", "title": "Week 1 voting", "shared": false } ],
+  "window": {
+    "id": "w_1", "title": "Week 1 voting",
+    "shared": false, "topN": 10, "showAverages": true,
+    "leaderboardTitle": "Top students of the week", "sharedAt": null
+  },
+  "minRatingsToRank": 3,
+  "ranking": [
+    { "rank": 1, "id": "u_5", "login": "faris", "name": "Faris Daher", "average": 2.75, "ratingsCount": 4 }
+  ]
+}
+```
+
+### PATCH /api/staff/leaderboard/:windowId   (Staff)
+كل الحقول اختيارية:
+```json
+{ "shared": true, "topN": 10, "showAverages": true, "title": "Top students of the week" }
+```
+- `topN` من 1 لـ 100. و `title` من 1 لـ 80 حرف.
+- `{ "shared": false }` بيخبّيها عن الطلاب.
+
+### GET /api/leaderboard   (Student)
+آخر لوحة شاركها الستاف، أول `topN` بس. ما فيها ids.
+```json
+{
+  "shared": true,
+  "title": "Top students of the week",
+  "windowTitle": "Week 1 voting",
+  "showAverages": true,
+  "entries": [ { "rank": 1, "name": "Faris Daher", "average": 2.75, "isMe": false } ]
+}
+```
+إذا الستاف ما شاركها: `{ "shared": false }`. وإذا `showAverages` = false، ما في `average`.
 
 ---
 
