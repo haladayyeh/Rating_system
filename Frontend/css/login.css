@@ -1,0 +1,266 @@
+/* ===== الألوان والخطوط ===== */
+:root {
+  --primary: #00BABC;
+  --primary-hover: #009DA0;
+  --primary-active: #00878A;
+  --focus: #5EEAD4;
+  --bg: #0D1B24;
+  --text: #FFFFFF;
+  --muted: #B8C4CC;
+  --placeholder: #8EA3B0;
+  --error: #FF6B4A;
+  --field-bg: rgba(14, 26, 36, 0.72);
+  --field-text: #FFFFFF;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+}
+
+.hidden { display: none !important; }
+
+/* للقارئ الصوتي بس (مخفي عن العين) */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ===== الخلفية ===== */
+.bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.bg svg { width: 100%; height: 100%; display: block; }
+
+/* ===== الصفحة ===== */
+.login {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-header { text-align: center; }
+
+/* ===== النجوم الثلاث ===== */
+.stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.star { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4)); }
+.star-sm { width: 28px; height: 28px; }
+.star-lg { width: 36px; height: 36px; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5)); }
+
+.star-path {
+  fill: transparent;
+  stroke: #FFFFFF;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.star-lg .star-path { stroke-width: 1.9; }
+
+/* النجوم بتتعبّى وحدة ورا الثانية */
+@keyframes starFill {
+  to { fill: var(--primary); stroke: var(--primary); }
+}
+.s1 { animation: starFill 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards; }
+.s2 { animation: starFill 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.70s forwards; }
+.s3 { animation: starFill 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1.05s forwards; }
+
+/* ===== النجوم كـ loading ===== */
+/* وإحنا بنستنى السيرفر: النجوم بتتعبّى وبتفضى وحدة ورا الثانية */
+@keyframes starPulse {
+  0%, 100% { fill: transparent; stroke: #FFFFFF; }
+  40%, 60% { fill: var(--primary); stroke: var(--primary); }
+}
+.stars.is-loading .star-path { animation: starPulse 1.05s ease-in-out infinite; }
+.stars.is-loading .s1 { animation-delay: 0s; }
+.stars.is-loading .s2 { animation-delay: 0.18s; }
+.stars.is-loading .s3 { animation-delay: 0.36s; }
+
+/* خطأ: النجوم بتفضى، بتصير حمرا، وبتهتز */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
+}
+.stars.is-error { animation: shake 0.45s ease-in-out; }
+.stars.is-error .star-path { animation: none; fill: transparent; stroke: var(--error); }
+
+/* نجح: النجوم بتتعبّى وبتكبر شوي */
+@keyframes pop {
+  50% { transform: scale(1.25); }
+}
+.stars.is-success .star-path { animation: none; fill: var(--primary); stroke: var(--primary); }
+.stars.is-success .star { animation: pop 0.4s ease-out both; }
+.stars.is-success .star:nth-child(2) { animation-delay: 0.08s; }
+.stars.is-success .star:nth-child(3) { animation-delay: 0.16s; }
+
+.campus {
+  margin: 0 0 10px;
+  font-family: "Geist", "Inter", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  color: var(--primary);
+}
+
+h1 {
+  margin: 0;
+  font-family: "Geist", "Inter", sans-serif;
+  font-size: 36px;
+  line-height: 42px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--muted);
+}
+
+/* ===== الفورم ===== */
+.login-form {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--primary);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--field-text);
+  font: inherit;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field::placeholder { color: var(--placeholder); }
+.field:focus { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.25); }
+.field.invalid { border-color: var(--error); }
+
+.password-wrap { position: relative; }
+.field-password { padding-right: 48px; }
+
+.eye {
+  position: absolute;
+  top: 0; right: 0;
+  width: 48px; height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.eye:hover { color: var(--field-text); }
+.eye svg {
+  width: 20px; height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.eye .eye-closed { display: none; }
+.eye[aria-pressed="true"] .eye-open { display: none; }
+.eye[aria-pressed="true"] .eye-closed { display: block; }
+
+/* ===== رسالة الخطأ ===== */
+.error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 2px;
+  color: var(--error);
+  font-size: 14px;
+  line-height: 18px;
+}
+.error svg {
+  width: 17px; height: 17px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+/* ===== زر الدخول ===== */
+.btn {
+  width: 100%;
+  height: 52px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: #FFFFFF;
+  font-family: "Geist", "Inter", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(4, 47, 46, 0.4);
+  transition: background-color 0.15s;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn:active { background: var(--primary-active); }
+.btn:disabled { cursor: wait; background: var(--primary-active); }
+
+/* ===== رسالة النجاح ===== */
+.success {
+  padding: 12px;
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+  background: rgba(0, 186, 188, 0.2);
+  color: var(--focus);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* للي ما بحبوا الحركة */
+@media (prefers-reduced-motion: reduce) {
+  .s1, .s2, .s3 { animation: none; fill: var(--primary); stroke: var(--primary); }
+  .stars.is-loading .star-path { animation-duration: 2.4s; }
+  .stars.is-error, .stars.is-success .star { animation: none; }
+}
