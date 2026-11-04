@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const db = require("./db");
 const authRoutes = require("./routes/auth");
+const studentRoutes = require("./routes/student");
 
 const app = express();
 app.use(cors());
@@ -30,6 +31,9 @@ app.get("/api/health/db", async (req, res) => {
 
 // روابط تسجيل الدخول: /api/auth/login و /api/auth/me
 app.use("/api/auth", authRoutes);
+
+// روابط الطالب: /api/me/rating و /api/ratings ...
+app.use("/api", studentRoutes);
 
 // لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
 app.use((err, req, res, next) => {
