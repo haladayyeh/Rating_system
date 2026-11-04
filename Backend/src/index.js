@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const db = require("./db");
+const authRoutes = require("./routes/auth");
 
 const app = express();
 app.use(cors());
@@ -23,8 +24,17 @@ app.get("/api/health/db", async (req, res) => {
       labels: Number(labels.rows[0].count),
     });
   } catch (err) {
-      res.status(500).json({ database: "error", code: err.code, error: err.message, details: String(err.errors || err) });
+    res.status(500).json({ database: "error", code: err.code, error: err.message, details: String(err.errors || err) });
   }
+});
+
+// روابط تسجيل الدخول: /api/auth/login و /api/auth/me
+app.use("/api/auth", authRoutes);
+
+// لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Something went wrong" });
 });
 
 const PORT = process.env.PORT || 3000;

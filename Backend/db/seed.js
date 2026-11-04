@@ -6,8 +6,8 @@ const bcrypt = require("bcryptjs");
 const db = require("../src/db");
 
 const STUDENTS = [
-  ["ahmad", "Ahmad Ali"], ["sara", "Sara Omar"], ["omar", "Omar Khaled"],
-  ["lina", "Lina Haddad"], ["yousef", "Yousef Nasser"], ["rana", "Rana Saleh"],
+  ["hdaya", "Hala Daya"], ["amradwan", "Ammar Radwan"], ["amalsaka", "Amro Alsakaji"],
+  ["rawabdal", "Rawd Abdallah"], ["yousef", "Yousef Nasser"], ["rana", "Rana Saleh"],
   ["khaled", "Khaled Mansour"], ["dana", "Dana Qasem"], ["zaid", "Zaid Hamdan"],
   ["noor", "Noor Awad"], ["hamza", "Hamza Odeh"], ["leen", "Leen Barakat"],
   ["mohammad", "Mohammad Issa"], ["tala", "Tala Jaber"], ["ali", "Ali Shami"],
