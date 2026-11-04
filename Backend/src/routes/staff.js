@@ -45,8 +45,10 @@ router.get("/overview", onlyStaff, async (req, res) => {
        (SELECT COUNT(*)::int FROM ratings WHERE window_id = $1 AND is_invalidated) AS "invalidatedRatings",
        (SELECT COUNT(*)::int FROM users WHERE role = 'STUDENT') AS "totalStudents",
        (SELECT COUNT(DISTINCT rater_id)::int FROM ratings WHERE window_id = $1) AS "studentsWhoRated",
+       (SELECT COUNT(*)::int FROM users u WHERE u.role = 'STUDENT'
+          AND (SELECT COUNT(*) FROM ratings WHERE rater_id = u.id AND window_id = $1) < $2) AS "studentsBelowMinimum",
        (SELECT COUNT(*)::int FROM abuse_cases WHERE status = 'OPEN') AS "openAbuseCases"`,
-    [window.id]
+    [window.id, window.min_votes]
   );
   const stats = r.rows[0];
   res.json({
@@ -250,17 +252,29 @@ router.get("/ratings", onlyStaff, async (req, res) => {
   res.json(Object.values(groups).sort((a, b) => b.count - a.count));
 });
 
-// GET /api/staff/windows/:id/participation → مين صوّت ومين لأ
+// GET /api/staff/windows/:id/participation → مين صوّت ومين لأ، ومين ما وصل للحد الأدنى
 router.get("/windows/:id/participation", onlyStaff, async (req, res) => {
+  const w = await db.query(
+    `SELECT id, min_votes, max_votes FROM voting_windows WHERE id::text = $1`,
+    [req.params.id]
+  );
+  if (w.rows.length === 0) return res.status(404).json({ error: "Window not found" });
+  const { min_votes: minVotes, max_votes: maxVotes } = w.rows[0];
+
   const r = await db.query(
     `SELECT u.id, u.login, u.name,
        (SELECT COUNT(*)::int FROM ratings WHERE rater_id = u.id AND window_id::text = $1) AS "votesGiven"
      FROM users u WHERE u.role = 'STUDENT' ORDER BY u.name`,
     [req.params.id]
   );
+  const students = r.rows.map((s) => ({ ...s, reachedMinimum: s.votesGiven >= minVotes }));
   res.json({
-    voted: r.rows.filter((s) => s.votesGiven > 0),
-    notVoted: r.rows.filter((s) => s.votesGiven === 0).map(({ votesGiven, ...s }) => s),
+    minVotes,
+    maxVotes,
+    voted: students.filter((s) => s.votesGiven > 0),
+    notVoted: students.filter((s) => s.votesGiven === 0).map(({ votesGiven, reachedMinimum, ...s }) => s),
+    // صوّتوا أقل من المطلوب (أو ما صوّتوا أبداً)
+    belowMinimum: students.filter((s) => !s.reachedMinimum),
   });
 });
 

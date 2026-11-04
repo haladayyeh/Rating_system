@@ -8,10 +8,28 @@ const staffRoutes = require("./routes/staff");
 const abuseRoutes = require("./routes/abuse");
 const leaderboardRoutes = require("./routes/leaderboard");
 const migrate = require("./migrate");
+const {
+  loginLimiter, ratingLimiter, apiLimiter, securityHeaders, checkSecrets,
+} = require("./middleware/security");
+
+// إذا الأسرار ناقصة أو ضعيفة، السيرفر ما بيشتغل أصلاً
+checkSecrets();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.disable("x-powered-by");   // ما نحكي لأي حدا إنه السيرفر Express
+app.set("trust proxy", 1);     // على Render: عشان نعرف الـ IP الحقيقي للمستخدم
+
+// CORS: إذا حطينا CORS_ORIGIN بالـ .env (مثلاً رابط الفرونت)، بس هو بيقدر يحكي مع الـ API
+const allowed = (process.env.CORS_ORIGIN || "").split(",").map((o) => o.trim()).filter(Boolean);
+app.use(cors(allowed.length ? { origin: allowed } : {}));
+
+app.use(securityHeaders);
+app.use(express.json({ limit: "10kb" })); // ما نقبل طلبات ضخمة
+
+// حدود عدد الطلبات
+app.use("/api", apiLimiter);
+app.use("/api/auth/login", loginLimiter);
+app.post("/api/ratings", ratingLimiter);
 app.use(express.static("public"));
 
 // للتأكد إن السيرفر شغال
@@ -51,6 +69,9 @@ app.use("/api", studentRoutes);
 
 // لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
 app.use((err, req, res, next) => {
+  // JSON غلط أو طلب ضخم: هاد غلط من الطلب، مش من السيرفر
+  if (err.type === "entity.parse.failed") return res.status(400).json({ error: "Invalid JSON" });
+  if (err.type === "entity.too.large") return res.status(413).json({ error: "Request is too large" });
   console.error(err);
   res.status(500).json({ error: "Something went wrong" });
 });

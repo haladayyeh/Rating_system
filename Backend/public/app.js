@@ -621,6 +621,33 @@ $("lbWindowSelect").addEventListener("change", (e) => loadStaffLeaderboard(e.tar
 $("lbShareBtn").addEventListener("click", () => saveLeaderboard(true));
 $("lbStopBtn").addEventListener("click", () => saveLeaderboard(false));
 
+// ---------- تحميل الـ CSV ----------
+// الرابط العادي ما بيبعت الـ token، فبنجيب الملف بـ fetch وبعدين بنحمّله
+$("exportLink").addEventListener("click", async (event) => {
+  event.preventDefault();
+  try {
+    const response = await fetch(API + "/staff/export.csv", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || `Export failed (${response.status})`);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ratings-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast("CSV downloaded");
+  } catch (err) {
+    toast(err.message);
+  }
+});
+
 async function restoreSession() {
   if (!token) return;
   try {
