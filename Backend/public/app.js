@@ -37,11 +37,13 @@ function showLoggedIn(user) {
     $("staffView").classList.remove("hidden");
     $("studentView").classList.add("hidden");
     loadStaff();
+    loadStaffLeaderboard();
   } else {
     $("studentView").classList.remove("hidden");
     $("staffView").classList.add("hidden");
     loadStudent();
-    loadLabels(); // نحمّل الـ labels بعد تسجيل الدخول (قبلها ما في token)
+    loadLabels();
+    loadStudentLeaderboard(); // نحمّل الـ labels بعد تسجيل الدخول (قبلها ما في token)
   }
 }
 
@@ -484,6 +486,140 @@ async function loadStudentDetails(id) {
 }
 
 
+
+// ---------- لوحة Top students ----------
+let lbState = { window: null, ranking: [] };
+
+// بترسم القائمة: الاسم على اليسار، والمتوسط على اليمين
+function renderLeaderboardList(list, entries, { showAverages = true, topN = Infinity } = {}) {
+  list.innerHTML = "";
+  if (!entries.length) {
+    const empty = document.createElement("li");
+    empty.className = "lb-empty muted";
+    empty.textContent = "No student has enough ratings to be ranked yet.";
+    list.appendChild(empty);
+    return;
+  }
+  entries.forEach((entry) => {
+    const li = document.createElement("li");
+    li.className = "lb-row";
+    if (entry.rank > topN) li.classList.add("lb-outside");
+    if (entry.isMe) li.classList.add("lb-me");
+
+    const rank = document.createElement("span");
+    rank.className = "lb-rank";
+    rank.textContent = entry.rank;
+
+    const name = document.createElement("span");
+    name.className = "lb-name";
+    name.textContent = entry.name + (entry.isMe ? " (you)" : "");
+
+    li.append(rank, name);
+    if (showAverages && entry.average !== undefined) {
+      const avg = document.createElement("span");
+      avg.className = "lb-avg";
+      avg.textContent = entry.average.toFixed(2);
+      li.appendChild(avg);
+    }
+    list.appendChild(li);
+  });
+}
+
+// عند الطالب: بتبين بس إذا الستاف شاركها
+async function loadStudentLeaderboard() {
+  try {
+    const board = await api("/leaderboard");
+    const panel = $("leaderboardPanel");
+    if (!board.shared) {
+      panel.classList.add("hidden");
+      return;
+    }
+    $("lbTitle").textContent = board.title;
+    $("lbWindowName").textContent = board.windowTitle.toUpperCase();
+    renderLeaderboardList($("lbList"), board.entries, { showAverages: board.showAverages });
+    panel.classList.remove("hidden");
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+// عند الستاف: الترتيب الكامل + إعدادات المشاركة
+function renderStaffLeaderboard() {
+  const w = lbState.window;
+  if (!w) return;
+  const topN = Number($("lbTopN").value) || w.topN;
+  renderLeaderboardList($("lbStaffList"), lbState.ranking, { topN });
+
+  const shown = Math.min(topN, lbState.ranking.length);
+  if (w.shared) {
+    $("lbStatus").className = "lb-status shared";
+    $("lbStatus").textContent =
+      `Shared with students since ${new Date(w.sharedAt).toLocaleString()} · showing top ${w.topN}` +
+      (w.showAverages ? " with averages" : " (names only)");
+    $("lbShareBtn").textContent = "Update shared board";
+    $("lbStopBtn").classList.remove("hidden");
+  } else {
+    $("lbStatus").className = "lb-status";
+    $("lbStatus").textContent = `Not shared. Students will see the top ${shown} when you share it.`;
+    $("lbShareBtn").textContent = "Share with students";
+    $("lbStopBtn").classList.add("hidden");
+  }
+}
+
+async function loadStaffLeaderboard(windowId) {
+  try {
+    const data = await api("/staff/leaderboard" + (windowId ? `?windowId=${encodeURIComponent(windowId)}` : ""));
+    lbState = { window: data.window, ranking: data.ranking };
+    const select = $("lbWindowSelect");
+    select.innerHTML = "";
+    data.windows.forEach((w) => {
+      const option = document.createElement("option");
+      option.value = w.id;
+      option.textContent = w.title + (w.shared ? " · shared" : "");
+      select.appendChild(option);
+    });
+    if (!data.window) {
+      $("lbStatus").textContent = "No voting windows yet.";
+      return;
+    }
+    select.value = data.window.id;
+    $("lbTitleInput").value = data.window.leaderboardTitle;
+    $("lbTopN").value = data.window.topN;
+    $("lbShowAvg").checked = data.window.showAverages;
+    renderStaffLeaderboard();
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+async function saveLeaderboard(shared) {
+  const w = lbState.window;
+  if (!w) return;
+  const body = { shared };
+  if (shared) {
+    body.topN = Number($("lbTopN").value);
+    body.showAverages = $("lbShowAvg").checked;
+    body.title = $("lbTitleInput").value;
+  }
+  try {
+    await api(`/staff/leaderboard/${encodeURIComponent(w.id)}`, { method: "PATCH", body: JSON.stringify(body) });
+    toast(shared ? "Leaderboard shared with students" : "Leaderboard hidden from students");
+    await loadStaffLeaderboard(w.id);
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+$("lbTopN").addEventListener("input", renderStaffLeaderboard);
+document.querySelectorAll(".lb-quick [data-top]").forEach((btn) =>
+  btn.addEventListener("click", () => {
+    $("lbTopN").value = btn.dataset.top;
+    renderStaffLeaderboard();
+  })
+);
+$("lbWindowSelect").addEventListener("change", (e) => loadStaffLeaderboard(e.target.value));
+$("lbShareBtn").addEventListener("click", () => saveLeaderboard(true));
+$("lbStopBtn").addEventListener("click", () => saveLeaderboard(false));
 
 async function restoreSession() {
   if (!token) return;

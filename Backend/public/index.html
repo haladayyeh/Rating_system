@@ -63,6 +63,12 @@
           </article>
         </div>
 
+        <section id="leaderboardPanel" class="panel leaderboard hidden">
+          <p id="lbWindowName" class="eyebrow"></p>
+          <h2 id="lbTitle">Top students of the week</h2>
+          <ol id="lbList" class="lb-list"></ol>
+        </section>
+
         <section class="panel">
           <div class="section-heading">
             <div><h2>Rate a student</h2><p class="muted">You can rate each student once per voting window.</p></div>
@@ -119,6 +125,32 @@
 
 
         </section>
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>Top students</h2>
+              <p class="muted">Ranked by average (only students with at least 3 ratings). Students can't see this until you share it.</p>
+            </div>
+            <label class="lb-window">Voting window<select id="lbWindowSelect"></select></label>
+          </div>
+          <div class="lb-controls">
+            <label>Title shown to students<input id="lbTitleInput" maxlength="80"></label>
+            <label>Show top<input id="lbTopN" type="number" min="1" max="100"></label>
+            <div class="lb-quick">
+              <button type="button" class="button secondary" data-top="3">Top 3</button>
+              <button type="button" class="button secondary" data-top="10">Top 10</button>
+              <button type="button" class="button secondary" data-top="20">Top 20</button>
+            </div>
+            <label class="check-label"><input type="checkbox" id="lbShowAvg"> Show averages to students</label>
+          </div>
+          <p id="lbStatus" class="lb-status"></p>
+          <div class="lb-actions">
+            <button type="button" id="lbShareBtn" class="button">Share with students</button>
+            <button type="button" id="lbStopBtn" class="button secondary hidden">Stop sharing</button>
+          </div>
+          <ol id="lbStaffList" class="lb-list"></ol>
+        </section>
+
         <section class="panel">
           <h2>Student details</h2>
           <p class="muted">Choose “Details” beside a student to inspect ratings given and received.</p>

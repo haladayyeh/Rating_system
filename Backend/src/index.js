@@ -6,6 +6,8 @@ const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
 const staffRoutes = require("./routes/staff");
 const abuseRoutes = require("./routes/abuse");
+const leaderboardRoutes = require("./routes/leaderboard");
+const migrate = require("./migrate");
 
 const app = express();
 app.use(cors());
@@ -41,6 +43,9 @@ app.use("/api/staff/abuse", abuseRoutes);
 // روابط الستاف: /api/staff/...
 app.use("/api/staff", staffRoutes);
 
+// لوحة Top students: /api/staff/leaderboard و /api/leaderboard
+app.use("/api", leaderboardRoutes);
+
 // روابط الطالب: /api/me/rating و /api/ratings ...
 app.use("/api", studentRoutes);
 
@@ -51,4 +56,11 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`));
+
+// أول إشي بنحدّث الداتابيس (لو في أعمدة جديدة)، وبعدين بنشغّل السيرفر
+migrate()
+  .then(() => app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`)))
+  .catch((err) => {
+    console.error("❌ Database update failed:", err.message);
+    process.exit(1);
+  });
