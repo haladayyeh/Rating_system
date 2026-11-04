@@ -4,10 +4,12 @@ const cors = require("cors");
 const db = require("./db");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
+const staffRoutes = require("./routes/staff");
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
 // للتأكد إن السيرفر شغال
 app.get("/hello", (req, res) => {
@@ -34,7 +36,7 @@ app.use("/api/auth", authRoutes);
 
 // روابط الطالب: /api/me/rating و /api/ratings ...
 app.use("/api", studentRoutes);
-
+app.use("/api/staff", staffRoutes);
 // لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
 app.use((err, req, res, next) => {
   console.error(err);

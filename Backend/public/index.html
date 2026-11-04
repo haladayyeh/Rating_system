@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team Rating System</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">LOCAL DEMO</p>
+        <h1>Team Rating System</h1>
+        <p class="muted">A simple interface for testing your team's API.</p>
+      </div>
+      <button id="logoutBtn" class="button secondary hidden">Log out</button>
+    </header>
+
+    <section id="loginPanel" class="panel login-panel">
+      <h2>Sign in</h2>
+      <p class="muted">Use one of the demo accounts listed below.</p>
+      <form id="loginForm">
+        <label>Username<input id="login" autocomplete="username" value="hdaya" required></label>
+        <label>Password<input id="password" type="password" autocomplete="current-password" value="123456" required></label>
+        <button class="button" type="submit">Sign in</button>
+      </form>
+      <p id="loginError" class="error"></p>
+      <div class="demo-box">
+        <strong>Demo accounts</strong>
+        <span>Students: ahmad, sara, omar, lina</span>
+        <span>Staff: staff</span>
+        <span>Password for all: 123456</span>
+      </div>
+    </section>
+
+    <section id="appPanel" class="hidden">
+      <div class="welcome panel">
+        <div>
+          <p class="eyebrow">SIGNED IN</p>
+          <h2 id="welcomeName">Welcome</h2>
+          <p id="welcomeMeta" class="muted"></p>
+        </div>
+        <span id="rolePill" class="pill"></span>
+      </div>
+
+      <div id="studentView" class="hidden">
+        <div class="grid">
+          <article class="panel stat">
+            <span class="muted">Your average</span>
+            <strong id="averageValue">—</strong>
+            <small id="averageHint">Visible after 3 ratings</small>
+          </article>
+          <article class="panel stat">
+            <span class="muted">Votes used</span>
+            <strong id="votesValue">—</strong>
+            <small id="votesHint">Your current window</small>
+          </article>
+          <article class="panel stat">
+            <span class="muted">Voting window</span>
+            <strong id="windowValue">—</strong>
+            <small id="windowHint">Checking status…</small>
+          </article>
+        </div>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div><h2>Rate a student</h2><p class="muted">You can rate each student once per voting window.</p></div>
+            <button id="refreshStudents" class="button secondary">Refresh</button>
+          </div>
+          <form id="ratingForm" class="rating-form">
+            <label>Student<select id="studentSelect" required><option value="">Choose a student</option></select></label>
+            <label>Stars
+              <select id="starsSelect" required>
+                <option value="3">3 — Great</option>
+                <option value="2">2 — Okay</option>
+                <option value="1">1 — Needs improvement</option>
+              </select>
+            </label>
+            <fieldset>
+              <legend>Labels (optional)</legend>
+              <div id="labelsList" class="labels-list"><span class="muted">Choose a star rating first.</span></div>
+            </fieldset>
+            <label id="explanationWrap" class="hidden">Explanation (required for serious flags)
+              <textarea id="explanation" rows="3" placeholder="Describe what happened factually…"></textarea>
+            </label>
+            <button class="button" type="submit">Submit rating</button>
+          </form>
+          <p id="ratingMessage" class="message"></p>
+        </section>
+      </div>
+
+      <div id="staffView" class="hidden">
+        <div class="grid">
+          <article class="panel stat"><span class="muted">Total ratings</span><strong id="staffRatings">0</strong></article>
+          <article class="panel stat"><span class="muted">Students</span><strong id="staffStudents">0</strong></article>
+          <article class="panel stat"><span class="muted">Open abuse cases</span><strong id="staffAbuse">0</strong></article>
+        </div>
+        <section class="panel">
+          <div class="section-heading">
+            <div><h2>Student overview</h2><p class="muted">Staff can see detailed results.</p></div>
+            <a class="button secondary" href="/api/staff/export.csv" id="exportLink">Export CSV</a>
+          </div>
+           <div class="table-wrap">
+            <table><thead><tr><th>Student</th><th>Login</th><th>Average</th><th>Received</th><th>Given</th><th></th></tr></thead><tbody id="staffTable"></tbody></table>
+          </div>
+
+
+
+        </section>
+        <section class="panel">
+          <h2>Student details</h2>
+          <p class="muted">Choose “Details” beside a student to inspect ratings given and received.</p>
+          <div id="staffDetails" class="details">No student selected.</div>
+        </section>
+        <section class="panel">
+          <h2>Abuse cases</h2>
+          <p class="muted">This demo lists cases stored in the database. It does not yet run an automatic detection job.</p>
+          <div id="abuseList" class="muted">No abuse cases loaded.</div>
+        </section>
+      </div>
+    </section>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <footer>Local development demo · Do not use with real student data yet.</footer>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
