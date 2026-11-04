@@ -91,9 +91,19 @@ router.get("/windows/current", onlyStudents, async (req, res) => {
   });
 });
 
-// GET /api/students → الطلاب اللي بقدر أقيّمهم (بدون نفسي)
+// GET /api/students?q=hala → بحث عن طالب بالاسم أو الـ intra login (بدون نفسي)
+// بدون q بيرجّع كل الطلاب (عشان أي صفحة قديمة بتستعمله تضل شغالة)
 router.get("/students", onlyStudents, async (req, res) => {
   const window = await getOpenWindow();
+  const q = String(req.query.q || "").trim();
+
+  if (req.query.q !== undefined && q.length < 2) {
+    return res.status(400).json({ error: "Type at least 2 characters to search" });
+  }
+
+  // بنهرّب % و _ عشان ما يشتغلوا كـ wildcards بالبحث
+  const pattern = "%" + q.replace(/[\\%_]/g, "\\$&") + "%";
+
   const result = await db.query(
     `SELECT u.id, u.login, u.name,
             EXISTS (
@@ -102,8 +112,14 @@ router.get("/students", onlyStudents, async (req, res) => {
             ) AS "alreadyRated"
      FROM users u
      WHERE u.role = 'STUDENT' AND u.id <> $1
-     ORDER BY u.name`,
-    [req.user.id, window ? window.id : null]
+       AND ($3 = '' OR u.login ILIKE $4 OR u.name ILIKE $4)
+     ORDER BY
+       (lower(u.login) = lower($3)) DESC,           -- الـ login مطابق بالضبط أول
+       (u.login ILIKE $3 || '%') DESC,               -- بعدين اللي بيبلش فيه
+       (u.name ILIKE $3 || '%') DESC,
+       u.name
+     LIMIT CASE WHEN $3 = '' THEN NULL ELSE 10 END`,
+    [req.user.id, window ? window.id : null, q, pattern]
   );
   res.json(result.rows);
 });

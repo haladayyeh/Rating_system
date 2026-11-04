@@ -1,6 +1,7 @@
 // بيعبّي الداتابيس ببيانات تجريبية: ستاف، طلاب، labels، وفترة تصويت
 // شغّله بـ:  npm run seed
 // ⚠️ بيمسح كل البيانات القديمة قبل ما يعبّي من جديد
+// هادا فيه البيانات التجريبية الي حطيناها للجداول 
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const db = require("../src/db");

@@ -41,6 +41,7 @@ function showLoggedIn(user) {
     $("studentView").classList.remove("hidden");
     $("staffView").classList.add("hidden");
     loadStudent();
+    loadLabels(); // نحمّل الـ labels بعد تسجيل الدخول (قبلها ما في token)
   }
 }
 
@@ -73,8 +74,8 @@ $("logoutBtn").addEventListener("click", logout);
 
 async function loadStudent() {
   try {
-    const [rating, votes, windowInfo, students] = await Promise.all([
-      api("/me/rating"), api("/me/votes"), api("/windows/current"), api("/students")
+    const [rating, votes, windowInfo] = await Promise.all([
+      api("/me/rating"), api("/me/votes"), api("/windows/current")
     ]);
     $("averageValue").textContent = rating.visible ? rating.average.toFixed(1) : "—";
     $("averageHint").textContent = rating.visible ? "Based on received ratings" : rating.message;
@@ -83,21 +84,104 @@ async function loadStudent() {
     $("windowValue").textContent = windowInfo.isOpen ? "OPEN" : "CLOSED";
     $("windowHint").textContent = windowInfo.isOpen ? `Ends ${new Date(windowInfo.endsAt).toLocaleString()}` : "No active voting window";
 
-    const select = $("studentSelect");
-    select.innerHTML = '<option value="">Choose a student</option>';
-    students.forEach((student) => {
-      const option = document.createElement("option");
-      option.value = student.id;
-      option.textContent = `${student.name}${student.alreadyRated ? " — already rated" : ""}`;
-      option.disabled = student.alreadyRated;
-      select.appendChild(option);
-    });
     if (!windowInfo.isOpen) $("ratingMessage").textContent = "Voting is currently closed.";
   } catch (err) {
     if (err.message.includes("token") || err.message.includes("Authentication")) logout();
     else toast(err.message);
   }
 }
+
+// ---------- البحث عن طالب (عند الطالب) ----------
+// بنستنى المستخدم يوقف كتابة شوي قبل ما نبعت الطلب
+function debounce(fn, ms = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
+function clearSelectedStudent() {
+  $("studentSelect").value = "";
+  $("selectedStudent").classList.add("hidden");
+  $("selectedStudent").innerHTML = "";
+  $("studentSearch").classList.remove("hidden");
+}
+
+function chooseStudent(student) {
+  $("studentSelect").value = student.id;
+  $("ratingMessage").textContent = "";
+  $("studentResults").innerHTML = "";
+  $("studentSearch").value = "";
+  $("studentSearch").classList.add("hidden");
+
+  const box = $("selectedStudent");
+  box.innerHTML = "";
+  const info = document.createElement("div");
+  const name = document.createElement("strong");
+  name.textContent = student.name;
+  const login = document.createElement("span");
+  login.className = "muted";
+  login.textContent = ` @${student.login}`;
+  info.append(name, login);
+
+  const change = document.createElement("button");
+  change.type = "button";
+  change.className = "button secondary";
+  change.textContent = "Change";
+  change.addEventListener("click", () => {
+    clearSelectedStudent();
+    $("studentSearch").focus();
+  });
+
+  box.append(info, change);
+  box.classList.remove("hidden");
+}
+
+async function searchStudents() {
+  const q = $("studentSearch").value.trim();
+  const results = $("studentResults");
+  results.innerHTML = "";
+  if (q.length < 2) {
+    if (q.length === 1) results.innerHTML = '<p class="muted search-hint">Type at least 2 characters…</p>';
+    return;
+  }
+  try {
+    const students = await api(`/students?q=${encodeURIComponent(q)}`);
+    if ($("studentSearch").value.trim() !== q) return; // المستخدم كمّل كتابة، تجاهل النتيجة القديمة
+    if (!students.length) {
+      results.innerHTML = '<p class="muted search-hint">No student found.</p>';
+      return;
+    }
+    students.forEach((student) => {
+      const item = document.createElement("button");
+      item.type = "button";
+      item.className = "search-item";
+      item.disabled = student.alreadyRated;
+
+      const name = document.createElement("strong");
+      name.textContent = student.name;
+      const login = document.createElement("span");
+      login.className = "muted";
+      login.textContent = `@${student.login}`;
+      item.append(name, login);
+
+      if (student.alreadyRated) {
+        const tag = document.createElement("small");
+        tag.textContent = "already rated";
+        item.appendChild(tag);
+      } else {
+        item.addEventListener("click", () => chooseStudent(student));
+      }
+      results.appendChild(item);
+    });
+  } catch (err) {
+    results.innerHTML = "";
+    toast(err.message);
+  }
+}
+
+$("studentSearch").addEventListener("input", debounce(searchStudents));
 
 async function loadLabels() {
   const stars = Number($("starsSelect").value);
@@ -141,6 +225,11 @@ $("refreshStudents").addEventListener("click", loadStudent);
 $("ratingForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const labelIds = [...document.querySelectorAll("#labelsList input:checked")].map((input) => input.value);
+  if (!$("studentSelect").value) {
+    $("ratingMessage").className = "message error";
+    $("ratingMessage").textContent = "Search for a student and choose them first.";
+    return;
+  }
   const body = {
     rateeId: $("studentSelect").value,
     stars: Number($("starsSelect").value),
@@ -153,6 +242,7 @@ $("ratingForm").addEventListener("submit", async (event) => {
     $("ratingMessage").textContent = `Rating submitted. ${result.remaining} votes remaining.`;
     $("ratingMessage").classList.add("success");
     $("ratingForm").reset();
+    clearSelectedStudent();
     $("starsSelect").value = "3";
     $("explanationWrap").classList.add("hidden");
     await loadLabels();
@@ -171,26 +261,7 @@ async function loadStaff() {
     $("staffRatings").textContent = overview.totalRatings;
     $("staffStudents").textContent = overview.totalStudents;
     $("staffAbuse").textContent = overview.openAbuseCases;
-    const tbody = $("staffTable");
-    tbody.innerHTML = "";
-    students.forEach((student) => {
-      const tr = document.createElement("tr");
-      const values = [student.name, student.login, student.average ?? "—", student.ratingsReceived, student.votesGiven];
-      values.forEach((value) => {
-        const td = document.createElement("td");
-        td.textContent = value;
-        tr.appendChild(td);
-      });
-      const action = document.createElement("td");
-      const button = document.createElement("button");
-      button.className = "button secondary";
-      button.textContent = "Details";
-      button.setAttribute("data-student-id", student.id);
-button.addEventListener("click", () => loadStudentDetails(student.id));
-      action.appendChild(button);
-      tr.appendChild(action);
-      tbody.appendChild(tr);
-    });
+    renderStaffTable(students);
     $("abuseList").textContent = abuse.length ? JSON.stringify(abuse, null, 2) : "No abuse cases recorded.";
   } catch (err) {
     if (err.message.includes("token") || err.message.includes("Authentication")) logout();
@@ -200,6 +271,58 @@ button.addEventListener("click", () => loadStudentDetails(student.id));
 
 
 
+
+// ---------- جدول الطلاب + البحث (عند الستاف) ----------
+function renderStaffTable(students) {
+  const tbody = $("staffTable");
+  tbody.innerHTML = "";
+  students.forEach((student) => {
+    const tr = document.createElement("tr");
+    const values = [student.name, student.login, student.average ?? "—", student.ratingsReceived, student.votesGiven];
+    values.forEach((value) => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+    const action = document.createElement("td");
+    const button = document.createElement("button");
+    button.className = "button secondary";
+    button.textContent = "Details";
+    button.setAttribute("data-student-id", student.id);
+    button.addEventListener("click", () => loadStudentDetails(student.id));
+    action.appendChild(button);
+    tr.appendChild(action);
+    tbody.appendChild(tr);
+  });
+}
+
+async function searchStaffStudents() {
+  const q = $("staffSearch").value.trim();
+  const info = $("staffSearchInfo");
+  try {
+    if (q.length === 0) {
+      info.textContent = "";
+      renderStaffTable(await api("/staff/students"));
+      return;
+    }
+    if (q.length < 2) {
+      info.textContent = "Type at least 2 characters…";
+      return;
+    }
+    const students = await api(`/staff/students?q=${encodeURIComponent(q)}`);
+    if ($("staffSearch").value.trim() !== q) return;
+    info.textContent = students.length
+      ? `${students.length} student${students.length === 1 ? "" : "s"} found`
+      : "No student found.";
+    renderStaffTable(students);
+    // إذا في نتيجة وحدة بس، افتح تفاصيلها على طول
+    if (students.length === 1) loadStudentDetails(students[0].id);
+  } catch (err) {
+    toast(err.message);
+  }
+}
+
+$("staffSearch").addEventListener("input", debounce(searchStaffStudents));
 
 async function loadStudentDetails(id) {
   try {
@@ -372,5 +495,4 @@ async function restoreSession() {
   }
 }
 
-loadLabels();
 restoreSession();

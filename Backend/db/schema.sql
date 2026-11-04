@@ -2,6 +2,7 @@
 -- Rating System - Database Schema (PostgreSQL)
 -- شغّل هاد الملف مرة وحدة بـ Neon SQL Editor
 -- =====================================================
+--شكل الجداول 
 
 -- 1) المستخدمين: طلاب وستاف
 CREATE TABLE users (

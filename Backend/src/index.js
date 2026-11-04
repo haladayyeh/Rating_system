@@ -5,6 +5,7 @@ const db = require("./db");
 const authRoutes = require("./routes/auth");
 const studentRoutes = require("./routes/student");
 const staffRoutes = require("./routes/staff");
+const abuseRoutes = require("./routes/abuse");
 
 const app = express();
 app.use(cors());
@@ -34,9 +35,15 @@ app.get("/api/health/db", async (req, res) => {
 // روابط تسجيل الدخول: /api/auth/login و /api/auth/me
 app.use("/api/auth", authRoutes);
 
+// روابط كشف الغش: /api/staff/abuse/... (لازم تكون قبل روابط الستاف)
+app.use("/api/staff/abuse", abuseRoutes);
+
+// روابط الستاف: /api/staff/...
+app.use("/api/staff", staffRoutes);
+
 // روابط الطالب: /api/me/rating و /api/ratings ...
 app.use("/api", studentRoutes);
-app.use("/api/staff", staffRoutes);
+
 // لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
 app.use((err, req, res, next) => {
   console.error(err);

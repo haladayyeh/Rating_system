@@ -46,4 +46,15 @@ th{color:#718096;font-size:12px}
 .details{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f7fb;border-radius:12px;padding:15px;font-size:12px;max-height:420px;overflow:auto}
 #toast{position:fixed;right:20px;bottom:20px;background:#172033;color:white;padding:12px 16px;border-radius:10px;display:none;max-width:360px}
 footer{text-align:center;color:#8b96a9;font-size:12px;padding:12px}
+.search-field{display:grid;gap:8px}
+.search-results{display:grid;gap:6px}
+.search-results:empty{display:none}
+.search-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 13px;border:1px solid #e0e6f0;border-radius:10px;background:#f8faff;font:inherit;color:#172033;cursor:pointer}
+.search-item:hover:not(:disabled){border-color:#6b8fe8;background:#eef3ff}
+.search-item:disabled{cursor:not-allowed;opacity:.55}
+.search-item small{margin-left:auto}
+.search-hint{margin:0;font-size:13px}
+.selected-student{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #c9d7fb;background:#eef3ff;border-radius:10px}
+.staff-search{max-width:420px;margin-bottom:6px}
+.search-info{font-size:13px;min-height:18px;margin-bottom:8px}
 @media(max-width:700px){.shell{margin:22px auto}.grid{grid-template-columns:1fr}.panel{padding:18px}.topbar{align-items:flex-start}.section-heading{align-items:flex-start;flex-direction:column}}
