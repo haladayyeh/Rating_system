@@ -1,0 +1,485 @@
+/* ============================================================
+   styles.css — Rating System Login
+   Design system: Peer Architecture (DESIGN.md)
+   ============================================================ */
+
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+/* ── Reset & Base ─────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow-x: hidden;
+  font-family: 'Inter', sans-serif;
+  background-color: #0d1b24;
+  color: #ffffff;
+}
+
+/* ── Design Tokens ────────────────────────────────────────── */
+:root {
+  /* Structural colours */
+  --color-bg:          #0d1b24;
+  --color-surface:     #0e1a24;
+  --color-primary:     #00babc;
+  --color-primary-hover: #009da0;
+  --color-primary-active: #00878a;
+  --color-teal-dark:   #0a5c5c;
+  --color-star-fill:   #12333a;
+
+  /* Text */
+  --color-text-primary:   #ffffff;
+  --color-text-secondary: #b8c4cc;
+  --color-text-placeholder: #8ea3b0;
+  --color-error:       #ff6b4a;
+  --color-success-text: #5eead4;
+
+  /* Input / borders */
+  --color-input-bg:    rgba(14, 26, 36, 0.72);
+  --color-input-border: #00babc;
+  --color-input-focus:  #5eead4;
+
+  /* Overlay stroke */
+  --color-star-stroke: #00babc;
+  --star-stroke-opacity: 0.12;
+
+  /* Spacing (8px grid) */
+  --space-xs: 0.25rem;   /* 4px  */
+  --space-sm: 0.5rem;    /* 8px  */
+  --space-md: 1rem;      /* 16px */
+  --space-lg: 1.5rem;    /* 24px */
+  --space-xl: 2rem;      /* 32px */
+
+  /* Radii */
+  --radius-input: 14px;
+  --radius-btn:   14px;
+  --radius-badge: 4px;
+  --radius-card:  16px;
+  --radius-alert: 6px;
+}
+
+/* ── Typography helpers ────────────────────────────────────── */
+.font-headline { font-family: 'Geist', 'Inter', sans-serif; }
+.font-mono     { font-family: 'JetBrains Mono', monospace; }
+.font-body     { font-family: 'Inter', sans-serif; }
+
+/* ── Layout Shell ─────────────────────────────────────────── */
+.page-root {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Constellation Background ─────────────────────────────── */
+.bg-constellation {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.bg-constellation svg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Main Login Container ─────────────────────────────────── */
+.login-main {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 1.5rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+/* Star row */
+.star-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.875rem; /* 14px */
+  margin-bottom: 1.5rem;
+}
+
+.star-row svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+.star-row svg.star-lg {
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* Wordmark */
+.login-title {
+  font-family: 'Geist', 'Inter', sans-serif;
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+/* Subtitle */
+.login-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #b8c4cc;
+  margin-top: 0.5rem;
+  font-weight: 400;
+}
+
+/* ── Form ─────────────────────────────────────────────────── */
+.login-form {
+  width: 100%;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Screen-reader only label helper */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ── Input fields ─────────────────────────────────────────── */
+.field-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.poly-input {
+  display: block;
+  width: 100%;
+  height: 52px;
+  padding: 0 1rem;
+  background-color: var(--color-input-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-input);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.15s ease;
+  caret-color: var(--color-primary);
+}
+
+.poly-input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.poly-input:focus {
+  border-color: var(--color-input-focus);
+  /* Hard 2px offset ring, zero blur — per design system spec */
+  outline: 2px solid var(--color-input-focus);
+  outline-offset: 2px;
+}
+
+/* Password field has right padding for toggle btn */
+.poly-input.has-toggle {
+  padding-right: 3rem;
+}
+
+/* Eye toggle button */
+.toggle-vis-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 52px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #b8c4cc;
+  transition: color 0.15s ease;
+  outline: none;
+}
+
+.toggle-vis-btn:hover {
+  color: #ffffff;
+}
+
+.toggle-vis-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-badge);
+}
+
+.material-symbols-outlined {
+  font-size: 20px;
+  user-select: none;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ── Error message ────────────────────────────────────────── */
+.error-box {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.125rem;
+  color: var(--color-error);
+}
+
+.error-box.visible {
+  display: flex;
+}
+
+.error-box .material-symbols-outlined {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.error-box span.error-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+/* ── Field-level validation error ─────────────────────────── */
+
+/*
+ * Hidden by default. JS adds .field-invalid to the wrapping
+ * .field-wrap to show the red border + message together.
+ */
+.field-error {
+  display: none;
+  margin-top: 0.375rem;   /* 6px — snug under the input */
+  padding-left: 0.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--color-error);  /* #FF6B4A */
+}
+
+/* Input red border when its parent has .field-invalid */
+.field-wrap.field-invalid .poly-input {
+  border-color: var(--color-error);
+}
+
+/* Show the message */
+.field-wrap.field-invalid .field-error {
+  display: block;
+}
+
+/* ── Primary Sign In Button ───────────────────────────────── */
+.btn-signin {
+  width: 100%;
+  height: 52px;
+  margin-top: 0.5rem;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-family: 'Geist', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s ease;
+  /* Design system: no gradient, only flat shadow on teal zone */
+  box-shadow: 0 4px 16px rgba(0, 90, 92, 0.4);
+}
+
+.btn-signin:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.btn-signin:active:not(:disabled) {
+  background-color: var(--color-primary-active);
+}
+
+.btn-signin:disabled {
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* ── Success Alert ────────────────────────────────────────── */
+.success-alert {
+  display: none;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-alert);
+  background-color: rgba(0, 186, 188, 0.2);
+  border: 1px solid var(--color-primary);
+  color: var(--color-success-text);
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-alert.visible {
+  display: block;
+}
+
+/* ── Star animation ───────────────────────────────────────── */
+
+/*
+ * Base state: outlined white, centered transform-origin so scale()
+ * pulses from each star's own centre (requires transform-box: fill-box
+ * because SVG elements default to viewport-origin transforms).
+ */
+.star-path {
+  fill:             transparent;
+  stroke:           #ffffff;
+  transform-box:    fill-box;
+  transform-origin: center;
+}
+
+/*
+ * LOADING KEYFRAME — single animation shared by all three stars.
+ *
+ * Timeline per star (T = 1 500 ms):
+ *   0 – 6 %  (0 – 90 ms)   : hold invisible         opacity 0, scale 1
+ *   6 – 30 % (90 – 450 ms)  : ease-in fill + scale   opacity 0→1, scale 1→1.15
+ *  30 – 50 % (450 – 750 ms) : hold filled, settle     opacity 1,   scale 1.15→1
+ *  50 – 72 % (750 – 1 080ms): ease-out fade           opacity 1→0, scale 1
+ *  72 –100 % (1 080–1 500ms): hold invisible (buffer) opacity 0,   scale 1
+ *
+ * Stagger: animation-delay 0 / 150 / 300 ms (see below).
+ * animation-fill-mode: both → star is at keyframe 0% (opacity 0) during
+ * its positive delay, so there is never a flash before the first fill.
+ *
+ * Only transform and opacity are animated → fully GPU-composited.
+ */
+@keyframes starLoadPulse {
+  0%   { opacity: 0; transform: scale(1);    }
+  6%   { opacity: 0; transform: scale(1);    }
+  30%  { opacity: 1; transform: scale(1.15); }
+  50%  { opacity: 1; transform: scale(1);    }
+  72%  { opacity: 0; transform: scale(1);    }
+  100% { opacity: 0; transform: scale(1);    }
+}
+
+/* Shared properties for all three loading stars */
+.star-loading-1,
+.star-loading-2,
+.star-loading-3 {
+  fill:        #00babc;
+  stroke:      #00babc;
+  will-change: transform, opacity;
+  animation:   starLoadPulse 1500ms ease-in-out infinite both;
+}
+
+/* Per-star delay creates the left-to-right wave */
+.star-loading-1 { animation-delay:   0ms; }
+.star-loading-2 { animation-delay: 150ms; }
+.star-loading-3 { animation-delay: 300ms; }
+
+/*
+ * SUCCESS — stars settle filled teal.
+ * The browser picks up the animation's last-computed opacity / transform
+ * as the transition start-point, so the settle is always smooth regardless
+ * of where in the cycle loading stopped.
+ */
+.star-success {
+  fill:        #00babc;
+  stroke:      #00babc;
+  opacity:     1;
+  transform:   scale(1);
+  will-change: transform, opacity;
+  transition:  opacity 400ms ease-in-out, transform 400ms ease-in-out;
+}
+
+/*
+ * ERROR — stars fade back to outlined white.
+ * fill / stroke change is instantaneous (not animatable on GPU), but the
+ * opacity transition masks the state switch cleanly.
+ */
+.star-error {
+  fill:        transparent;
+  stroke:      #ffffff;
+  opacity:     1;
+  transform:   scale(1);
+  will-change: transform, opacity;
+  transition:  opacity 400ms ease-in-out, transform 400ms ease-in-out;
+}
+
+/*
+ * REDUCED MOTION — replace scale+wave with a simple collective opacity
+ * pulse; all three stars breathe together at the same rate.
+ */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes starLoadPulse {
+    0%, 100% { opacity: 0.25; transform: scale(1); }
+    50%       { opacity: 1;    transform: scale(1); }
+  }
+
+  .star-loading-1,
+  .star-loading-2,
+  .star-loading-3 {
+    animation-duration: 1200ms;
+    animation-delay:    0ms !important;  /* no stagger — all pulse together */
+  }
+
+  .star-success,
+  .star-error {
+    transition-duration: 0s;
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-main {
+    padding: 1rem;
+  }
+
+  .login-title {
+    font-size: 26px;
+    line-height: 32px;
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rating System – Sign In</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<div class="page-root">
+
+  <!-- ============================================================
+       GEOMETRIC STAR CONSTELLATION BACKGROUND (SVG)
+       Flat teal stars, 1px stroke #00BABC at 12% opacity,
+       selected stars filled with flat teal #12333A, bottom anchor.
+       ============================================================ -->
+  <div class="bg-constellation" aria-hidden="true">
+    <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice"
+         xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Base background -->
+      <rect width="1920" height="1080" fill="#0D1B24"/>
+
+      <!-- Large partial anchor stars at bottom edge -->
+      <g id="bottom-anchor-stars">
+        <!-- Huge cropped center star -->
+        <polygon
+          points="960,820 1010,950 1150,960 1045,1050 1075,1190
+                  960,1110 845,1190 875,1050 770,960 910,950"
+          fill="#0F2A30" stroke="#00BABC" stroke-width="1" stroke-opacity="0.12"/>
+        <!-- Bottom-left accent -->
+        <polygon
+          points="240,940 270,1015 350,1020 290,1070 305,1150
+                  240,1105 175,1150 190,1070 130,1020 210,1015"
+          fill="#0F2A30" stroke="#00BABC" stroke-width="1" stroke-opacity="0.12"/>
+        <!-- Bottom-right accent -->
+        <polygon
+          points="1680,940 1710,1015 1790,1020 1730,1070 1745,1150
+                  1680,1105 1615,1150 1630,1070 1570,1020 1650,1015"
+          fill="#0F2A30" stroke="#00BABC" stroke-width="1" stroke-opacity="0.12"/>
+      </g>
+
+      <!-- Constellation star grid -->
+      <g id="constellation-stars"
+         stroke="#00BABC" stroke-width="1" stroke-opacity="0.12" fill="none">
+
+        <!-- Top row -->
+        <g transform="translate(180,140) rotate(12)">
+          <polygon points="0,-36 10,-12 36,-12 15,4 22,29 0,14 -22,29 -15,4 -36,-12 -10,-12"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(460,90) rotate(-8)">
+          <polygon points="0,-28 8,-9 28,-9 12,3 17,23 0,11 -17,23 -12,3 -28,-9 -8,-9"/>
+        </g>
+        <g transform="translate(780,160) rotate(18)">
+          <polygon points="0,-42 12,-14 42,-14 18,5 26,34 0,17 -26,34 -18,5 -42,-14 -12,-14"/>
+        </g>
+        <g transform="translate(1140,110) rotate(-15)">
+          <polygon points="0,-32 9,-10 32,-10 14,4 20,26 0,13 -20,26 -14,4 -32,-10 -9,-10"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(1480,160) rotate(7)">
+          <polygon points="0,-48 14,-16 48,-16 20,6 30,39 0,19 -30,39 -20,6 -48,-16 -14,-16"/>
+        </g>
+        <g transform="translate(1760,90) rotate(-22)">
+          <polygon points="0,-30 8,-10 30,-10 13,4 19,24 0,12 -19,24 -13,4 -30,-10 -8,-10"/>
+        </g>
+
+        <!-- Mid-upper / flanks -->
+        <g transform="translate(100,380) rotate(-10)">
+          <polygon points="0,-52 15,-17 52,-17 22,7 32,42 0,21 -32,42 -22,7 -52,-17 -15,-17"/>
+        </g>
+        <g transform="translate(340,410) rotate(24)">
+          <polygon points="0,-68 20,-22 68,-22 28,9 42,55 0,27 -42,55 -28,9 -68,-22 -20,-22"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(580,350) rotate(-5)">
+          <polygon points="0,-30 8,-10 30,-10 13,4 19,24 0,12 -19,24 -13,4 -30,-10 -8,-10"/>
+        </g>
+        <g transform="translate(1360,370) rotate(16)">
+          <polygon points="0,-38 11,-12 38,-12 16,5 23,31 0,15 -23,31 -16,5 -38,-12 -11,-12"/>
+        </g>
+        <g transform="translate(1600,420) rotate(-14)">
+          <polygon points="0,-70 20,-23 70,-23 29,9 43,56 0,28 -43,56 -29,9 -70,-23 -20,-23"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(1820,370) rotate(9)">
+          <polygon points="0,-40 12,-13 40,-13 17,5 25,32 0,16 -25,32 -17,5 -40,-13 -12,-13"/>
+        </g>
+
+        <!-- Mid-lower row -->
+        <g transform="translate(160,680) rotate(15)">
+          <polygon points="0,-44 13,-14 44,-14 18,6 27,35 0,18 -27,35 -18,6 -44,-14 -13,-14"/>
+        </g>
+        <g transform="translate(440,720) rotate(-18)">
+          <polygon points="0,-36 10,-12 36,-12 15,4 22,29 0,14 -22,29 -15,4 -36,-12 -10,-12"/>
+        </g>
+        <g transform="translate(700,680) rotate(12)">
+          <polygon points="0,-48 14,-16 48,-16 20,6 30,39 0,19 -30,39 -20,6 -48,-16 -14,-16"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(1220,670) rotate(-12)">
+          <polygon points="0,-50 15,-16 50,-16 21,6 31,40 0,20 -31,40 -21,6 -50,-16 -15,-16"/>
+        </g>
+        <g transform="translate(1490,710) rotate(20)">
+          <polygon points="0,-34 10,-11 34,-11 14,4 21,27 0,14 -21,27 -14,4 -34,-11 -10,-11"
+                   fill="#12333A"/>
+        </g>
+        <g transform="translate(1780,660) rotate(-6)">
+          <polygon points="0,-45 13,-15 45,-15 19,6 28,36 0,18 -28,36 -19,6 -45,-15 -13,-15"/>
+        </g>
+      </g>
+    </svg>
+  </div><!-- /.bg-constellation -->
+
+
+  <!-- ============================================================
+       FLOATING LOGIN FORM
+       Centered on canvas, max 420px wide, no white card.
+       ============================================================ -->
+  <main class="login-main">
+
+    <!-- 1. HEADER — stars + wordmark + subtitle -->
+    <header class="login-header">
+
+      <!-- Three animated stars (left 28px, centre 36px, right 28px) -->
+      <div class="star-row" aria-label="3-star rating indicator">
+
+        <!-- Star 1 — left, small -->
+        <svg class="star-sm" width="28" height="28" viewBox="0 0 24 24"
+             fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="star-path-1" class="star-path"
+                d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"
+                stroke="#FFFFFF" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Star 2 — centre, large -->
+        <svg class="star-lg" width="36" height="36" viewBox="0 0 24 24"
+             fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="star-path-2" class="star-path"
+                d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"
+                stroke="#FFFFFF" stroke-width="1.9"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <!-- Star 3 — right, small -->
+        <svg class="star-sm" width="28" height="28" viewBox="0 0 24 24"
+             fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path id="star-path-3" class="star-path"
+                d="M12 2.5L14.9 8.6L21.6 9.5L16.7 14.2L17.9 20.9L12 17.7L6.1 20.9L7.3 14.2L2.4 9.5L9.1 8.6L12 2.5Z"
+                stroke="#FFFFFF" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <h1 class="login-title font-headline">Rating System</h1>
+      <p class="login-subtitle font-body">Sign in as 42 student</p>
+    </header>
+
+
+    <!-- 2 & 3. FORM — inputs + button + links -->
+    <form class="login-form" id="login-form"
+          novalidate onsubmit="return false;">
+
+      <!-- Field: Intra name -->
+      <div class="field-wrap">
+        <label class="sr-only" for="intra-login">Intra name</label>
+        <input
+          id="intra-login"
+          class="poly-input"
+          type="text"
+          name="intra-name"
+          placeholder="Intra name"
+          autocomplete="username"
+          required
+          aria-required="true">
+        <p class="field-error" id="intra-login-error" role="alert" aria-live="polite">
+          Intra name is required
+        </p>
+      </div>
+
+      <!-- Field: Password -->
+      <div class="field-wrap">
+        <label class="sr-only" for="intra-password">Password</label>
+        <input
+          id="intra-password"
+          class="poly-input has-toggle"
+          type="password"
+          name="intra-password"
+          placeholder="Password"
+          autocomplete="current-password"
+          required
+          aria-required="true">
+        <button
+          type="button"
+          id="toggle-visibility"
+          class="toggle-vis-btn"
+          aria-label="Toggle password visibility">
+          <span class="material-symbols-outlined" id="visibility-icon">visibility</span>
+        </button>
+        <p class="field-error" id="intra-password-error" role="alert" aria-live="polite">
+          Password is required
+        </p>
+      </div>
+
+      <!-- Inline error (hidden by default) -->
+      <div class="error-box" id="error-message-box" role="alert" aria-live="polite">
+        <span class="material-symbols-outlined">error</span>
+        <span class="error-text">Wrong intra name or password</span>
+      </div>
+
+      <!-- Primary submit button -->
+      <button class="btn-signin" id="signin-btn" type="submit">
+        SIGN IN
+      </button>
+
+      <!-- Success feedback (hidden by default) -->
+      <div class="success-alert" id="success-alert" role="status" aria-live="polite">
+        Authenticated successfully! Loading Vote dashboard…
+      </div>
+
+    </form>
+  </main>
+
+</div><!-- /.page-root -->
+
+<script src="app.js"></script>
+</body>
+</html>
