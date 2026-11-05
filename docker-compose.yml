@@ -1,0 +1,45 @@
+# Postgres on a local volume + the app (API + React frontend) in one container.
+#
+#   docker compose up -d --build      # start everything
+#   docker compose up -d db           # only the database (for `npm run dev` on your machine)
+#
+# Secrets come from ./.env (see .env.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rank
+      POSTGRES_USER: rank
+      # Optional. Postgres is only reachable from this machine, so the default is fine.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rank}
+    volumes:
+      # All data lives here; survives restarts, rebuilds and `docker compose down`
+      # (only `docker compose down -v` deletes it). Tables are created by the app on first start.
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Localhost only — never exposed to the internet
+      - "127.0.0.1:${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rank -d rank"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://rank:${POSTGRES_PASSWORD:-rank}@db:5432/rank
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      CORS_ORIGIN: ${CORS_ORIGIN:-}
+      PORT: 3000
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+
+volumes:
+  pgdata:

@@ -1,0 +1,57 @@
+import { useApi } from "../../lib/hooks";
+import { avg } from "../../lib/format";
+import { Stars } from "../../components/Stars";
+import Podium from "../../components/Podium";
+import { Avatar, Empty, ErrorBox, PageHeader, Spinner } from "../../components/ui";
+
+export default function StudentLeaderboard() {
+  const { data, error, loading, reload } = useApi("/leaderboard");
+
+  if (loading) return <Spinner />;
+  if (error) return <ErrorBox error={error} onRetry={reload} />;
+
+  if (!data?.shared) {
+    return (
+      <>
+        <PageHeader eyebrow="Leaderboard" title="Top students" />
+        <Empty icon="▲" title="Not shared yet">
+          Staff will publish the leaderboard when the voting window wraps up.
+        </Empty>
+      </>
+    );
+  }
+
+  const rest = data.entries.slice(3);
+  return (
+    <>
+      <PageHeader eyebrow={data.windowTitle} title={data.title} />
+      {data.entries.length === 0 ? (
+        <Empty icon="▲" title="No ranked students yet" />
+      ) : (
+        <>
+          <Podium entries={data.entries} showAverages={data.showAverages} />
+          {rest.length > 0 && (
+            <ol className="board-list card">
+              {rest.map((e) => (
+                <li key={e.rank} className={e.isMe ? "is-me" : ""}>
+                  <span className="board-rank mono">#{e.rank}</span>
+                  <Avatar name={e.name} size={36} />
+                  <span className="board-name">
+                    {e.name}
+                    {e.isMe && <em className="you-tag">you</em>}
+                  </span>
+                  {data.showAverages && (
+                    <span className="board-avg">
+                      <Stars value={e.average} size={14} />
+                      <span className="mono">{avg(e.average)}</span>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
+        </>
+      )}
+    </>
+  );
+}

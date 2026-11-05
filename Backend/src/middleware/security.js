@@ -81,7 +81,11 @@ function checkSecrets() {
     process.exit(1);
   }
   if (!process.env.DATABASE_URL) {
-    console.error("❌ DATABASE_URL is missing from your .env file.");
+    console.error(
+      "❌ No database configured.\n" +
+      "   Set POSTGRES_PASSWORD in the project's .env (and run: docker compose up -d db),\n" +
+      "   or set DATABASE_URL to point at another Postgres."
+    );
     process.exit(1);
   }
 }

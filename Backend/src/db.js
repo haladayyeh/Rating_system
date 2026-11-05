@@ -1,6 +1,6 @@
 // الاتصال بالداتابيس
 // بياخذ الرابط من ملف .env وبيفتح "pool" (مجموعة اتصالات جاهزة)
-require("dotenv").config();
+require("./config");
 const { Pool } = require("pg");
 
 const pool = new Pool({

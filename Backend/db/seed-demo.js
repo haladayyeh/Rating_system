@@ -1,7 +1,7 @@
 // بيعبّي تقييمات تجريبية للديمو: تقييمات طبيعية + حالة من كل نوع غش
 // شغّله بعد npm run seed:   npm run seed:demo
 // ⚠️ بيمسح كل التقييمات الموجودة
-require("dotenv").config();
+require("../src/config");
 const db = require("../src/db");
 
 async function main() {

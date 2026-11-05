@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("./config");
+const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 const db = require("./db");
@@ -30,7 +32,12 @@ app.use(express.json({ limit: "10kb" })); // ما نقبل طلبات ضخمة
 app.use("/api", apiLimiter);
 app.use("/api/auth/login", loginLimiter);
 app.post("/api/ratings", ratingLimiter);
-app.use(express.static("public"));
+
+// الفرونت اند (React): بعد "npm run build" بنخدّم الملفات من Frontend/dist
+// إذا لسا ما انبنى، بنرجع للصفحة التجريبية القديمة بـ public
+const frontendDist = path.join(__dirname, "..", "..", "Frontend", "dist");
+const hasFrontend = fs.existsSync(path.join(frontendDist, "index.html"));
+app.use(express.static(hasFrontend ? frontendDist : path.join(__dirname, "..", "public")));
 
 // للتأكد إن السيرفر شغال
 app.get("/hello", (req, res) => {
@@ -67,6 +74,17 @@ app.use("/api", leaderboardRoutes);
 // روابط الطالب: /api/me/rating و /api/ratings ...
 app.use("/api", studentRoutes);
 
+// أي رابط /api مش موجود → 404 JSON (مش صفحة HTML)
+app.use("/api", (req, res) => res.status(404).json({ error: "Not found" }));
+
+// روابط الفرونت (زي /rate أو /staff/abuse): React Router هو اللي بيتعامل معها
+if (hasFrontend) {
+  app.use((req, res, next) => {
+    if (req.method !== "GET" && req.method !== "HEAD") return next();
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
+
 // لو صار أي خطأ مش متوقع، بنرجّع رسالة بدل ما السيرفر يوقع
 app.use((err, req, res, next) => {
   // JSON غلط أو طلب ضخم: هاد غلط من الطلب، مش من السيرفر
@@ -80,8 +98,24 @@ const PORT = process.env.PORT || 3000;
 
 // أول إشي بنحدّث الداتابيس (لو في أعمدة جديدة)، وبعدين بنشغّل السيرفر
 migrate()
-  .then(() => app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`)))
+  .then(() => {
+    const server = app.listen(PORT, () => console.log(`Server on http://localhost:${PORT}`));
+    server.on("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        console.error(`❌ Port ${PORT} is already used by another program.`);
+        console.error("   Set a free port in the project's .env, e.g.  PORT=3001");
+      } else {
+        console.error("❌ Server failed to start:", err.message);
+      }
+      process.exit(1);
+    });
+  })
   .catch((err) => {
     console.error("❌ Database update failed:", err.message);
+    if (err.code === "ECONNREFUSED") {
+      console.error("   Is the database running? Start it with: docker compose up -d db");
+    } else if (err.code === "28P01") {
+      console.error("   Wrong database password. POSTGRES_PASSWORD must match the one the database was created with.");
+    }
     process.exit(1);
   });

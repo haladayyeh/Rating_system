@@ -2,7 +2,7 @@
 // شغّله بـ:  npm run seed
 // ⚠️ بيمسح كل البيانات القديمة قبل ما يعبّي من جديد
 // هادا فيه البيانات التجريبية الي حطيناها للجداول 
-require("dotenv").config();
+require("../src/config");
 const bcrypt = require("bcryptjs");
 const db = require("../src/db");
 
@@ -76,7 +76,7 @@ async function main() {
      VALUES ('Week 1 voting', now(), now() + interval '3 days', 2, 5)`
   );
 
-  console.log("✅ Done! Login with any student (e.g. ahmad) or 'staff' — password: 123456");
+  console.log("✅ Done! Login with any student (e.g. hdaya) or 'staff' — password: 123456");
   await db.end();
 }
 
