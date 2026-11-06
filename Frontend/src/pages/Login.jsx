@@ -59,7 +59,7 @@ export default function Login() {
               required
               value={form.login}
               onChange={(e) => setForm({ ...form, login: e.target.value })}
-              placeholder="e.g. ahmad"
+            
             />
           </label>
           <label className="field">
