@@ -3,7 +3,7 @@ import { api } from "../../lib/api";
 import { useApi, useDebounced } from "../../lib/hooks";
 import { useToast } from "../../lib/toast";
 import { StarPicker, STAR_MEANING } from "../../components/Stars";
-import { Avatar, Badge, Empty, ErrorBox, Modal, PageHeader, Progress, SearchInput, Spinner } from "../../components/ui";
+import { Avatar, BackLink, Badge, Empty, ErrorBox, Modal, PageHeader, Progress, SearchInput, Spinner } from "../../components/ui";
 
 export default function Rate() {
   const win = useApi("/windows/current");
@@ -21,6 +21,7 @@ export default function Rate() {
   if (!win.data?.isOpen) {
     return (
       <>
+        <BackLink />
         <PageHeader eyebrow="Rate peers" title="Voting is closed" />
         <Empty icon="◷" title="No open voting window">
           Come back when staff opens the next one.
@@ -40,6 +41,7 @@ export default function Rate() {
 
   return (
     <>
+      <BackLink />
       <PageHeader eyebrow="Rate peers" title="Who did you work with?">
         {v && (
           <div className="votes-pill">
@@ -49,7 +51,7 @@ export default function Rate() {
         )}
       </PageHeader>
 
-      {outOfVotes && <div className="alert alert-info">You've used all your votes for this window. 🎉</div>}
+      {outOfVotes && <div className="alert alert-info">You've used all your votes for this window. Thanks for rating!</div>}
 
       <SearchInput value={q} onChange={setQ} placeholder="Search by name or intra login…" autoFocus />
 
@@ -144,21 +146,19 @@ function RateModal({ student, onClose, onRated }) {
         </>
       }
     >
-      <div className="modal-person">
+      <div className="modal-person rate-head">
         <Avatar name={student.name} size={48} />
-        <div>
+        <div className="rate-head-info">
           <strong>{student.name}</strong>
           <div className="mono muted">@{student.login}</div>
         </div>
+        <StarPicker value={stars} onChange={setStars} />
       </div>
-
-      <h3 className="step-title"><span className="step-num">1</span> How was it?</h3>
-      <StarPicker value={stars} onChange={setStars} />
 
       {stars && (
         <>
           <h3 className="step-title">
-            <span className="step-num">2</span> Why {STAR_MEANING[stars].title.toLowerCase()}?
+            Why {STAR_MEANING[stars].title.toLowerCase()}?
             <small className="muted"> pick at least one</small>
           </h3>
           {!labels ? (
@@ -187,7 +187,7 @@ function RateModal({ student, onClose, onRated }) {
       {hasSerious && (
         <label className="field">
           <span>
-            <span className="step-num step-num-warn">3</span> Explain what happened <small className="muted">(required, min. 10 characters — only staff see this)</small>
+            <span className="text-danger">Explain what happened</span> <small className="muted">(required, min. 10 characters — only staff see this)</small>
           </span>
           <textarea
             className="input"

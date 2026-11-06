@@ -26,8 +26,11 @@ export function timeAgo(iso) {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
+// 3 → "3.0", 2.5 → "2.5", 2.666 → "2.67"
 export function avg(n) {
-  return n === null || n === undefined ? "—" : Number(n).toFixed(n % 1 === 0 ? 1 : 2).replace(/0$/, "");
+  if (n === null || n === undefined) return "—";
+  const x = Number(n);
+  return Number.isInteger(x) ? x.toFixed(1) : x.toFixed(2).replace(/0$/, "");
 }
 
 // ISO → value for <input type="datetime-local">

@@ -2,7 +2,7 @@ import { useApi } from "../../lib/hooks";
 import { avg } from "../../lib/format";
 import { Stars } from "../../components/Stars";
 import Podium from "../../components/Podium";
-import { Avatar, Empty, ErrorBox, PageHeader, Spinner } from "../../components/ui";
+import { Avatar, BackLink, Empty, ErrorBox, PageHeader, Spinner } from "../../components/ui";
 
 export default function StudentLeaderboard() {
   const { data, error, loading, reload } = useApi("/leaderboard");
@@ -13,6 +13,7 @@ export default function StudentLeaderboard() {
   if (!data?.shared) {
     return (
       <>
+        <BackLink />
         <PageHeader eyebrow="Leaderboard" title="Top students" />
         <Empty icon="▲" title="Not shared yet">
           Staff will publish the leaderboard when the voting window wraps up.
@@ -24,6 +25,7 @@ export default function StudentLeaderboard() {
   const rest = data.entries.slice(3);
   return (
     <>
+      <BackLink />
       <PageHeader eyebrow={data.windowTitle} title={data.title} />
       {data.entries.length === 0 ? (
         <Empty icon="▲" title="No ranked students yet" />

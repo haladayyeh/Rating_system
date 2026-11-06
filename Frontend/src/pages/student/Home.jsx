@@ -23,8 +23,9 @@ export default function StudentHome() {
 
   return (
     <>
-      <PageHeader eyebrow="Dashboard" title={`Hey ${firstName} 👋`} />
+      <PageHeader eyebrow="42 Amman" title={`Hello ${firstName}!`} />
       <ErrorBox error={error} onRetry={reloadAll} />
+      {board.data?.shared && <LeaderboardAnnouncement board={board.data} />}
       {loading && !error ? (
         <Spinner />
       ) : (
@@ -91,28 +92,39 @@ export default function StudentHome() {
               <p className="muted">No open voting window.</p>
             )}
           </section>
-
-          <section className="card">
-            <div className="card-row">
-              <p className="eyebrow">Top students</p>
-              <Link to="/leaderboard" className="link">See all</Link>
-            </div>
-            {board.data?.shared ? (
-              <ol className="mini-board">
-                {board.data.entries.slice(0, 3).map((e) => (
-                  <li key={e.rank} className={e.isMe ? "is-me" : ""}>
-                    <span className={`rank-chip rank-${e.rank}`}>{e.rank}</span>
-                    <span className="mini-name">{e.name}{e.isMe && " (you)"}</span>
-                    {board.data.showAverages && <span className="mono">{avg(e.average)}</span>}
-                  </li>
-                ))}
-              </ol>
-            ) : (
-              <p className="muted">Staff hasn't shared the leaderboard yet.</p>
-            )}
-          </section>
         </div>
       )}
     </>
+  );
+}
+
+// Shows up only after staff shares the leaderboard
+function LeaderboardAnnouncement({ board }) {
+  const top = board.entries.slice(0, 3);
+  return (
+    <Link to="/leaderboard" className="announce">
+      <span className="announce-stars" aria-hidden="true">
+        {[0, 1, 2].map((i) => (
+          <svg key={i} viewBox="0 0 24 24" style={{ animationDelay: `${i * 0.25}s` }}>
+            <path d="M12 2.7L14.41 9.58L21.7 9.75L15.9 14.17L18 21.15L12 17L6 21.15L8.1 14.17L2.3 9.75L9.59 9.58Z" />
+          </svg>
+        ))}
+      </span>
+      <div className="announce-text">
+        <p className="eyebrow eyebrow-light">Just announced · {board.windowTitle}</p>
+        <h2>{board.title}</h2>
+        {top.length > 0 && (
+          <ol className="announce-top">
+            {top.map((e) => (
+              <li key={e.rank} className={e.isMe ? "is-me" : ""}>
+                <span className={`rank-chip rank-${e.rank}`}>{e.rank}</span>
+                {e.name}{e.isMe && " (you)"}
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      <span className="btn btn-yellow announce-cta">See the leaderboard →</span>
+    </Link>
   );
 }

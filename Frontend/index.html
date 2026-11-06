@@ -12,6 +12,14 @@
       rel="stylesheet"
     />
     <title>42 Amman · Peer Rank</title>
+    <script>
+      // apply the saved theme before the app loads (avoids a white flash in dark mode)
+      try {
+        var t = localStorage.getItem("theme");
+        if (t !== "dark") t = "light";
+        document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

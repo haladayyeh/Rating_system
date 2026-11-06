@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { Logo } from "../components/ui";
 
+// شكل النجمة (نفس نجوم التقييم)
+const STAR = "M12 2.5l2.9 6.1 6.7.9-4.9 4.7 1.2 6.7L12 17.7l-5.9 3.2 1.2-6.7-4.9-4.7 6.7-.9z";
+
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -28,20 +31,17 @@ export default function Login() {
       <section className="login-hero">
         <Logo />
         <div className="login-hero-copy">
-          <p className="eyebrow eyebrow-light">Peer evaluation</p>
           <h1>
             Rate fairly &
             <br />
             <span className="hl-turq">Grow</span> <span className="hl-yellow">together.</span>
           </h1>
-          <p>
-            Recognize the peers who helped you most this week. Ratings stay anonymous, only
-            averages are shown, and only after enough votes come in. Good luck!
-          </p>
         </div>
         <div className="login-grid" aria-hidden="true">
           {Array.from({ length: 42 }, (_, i) => (
-            <span key={i} style={{ animationDelay: `${(i * 137) % 4000}ms` }} />
+            <svg key={i} viewBox="0 0 24 24" style={{ animationDelay: `${(i * 137) % 4000}ms` }}>
+              <path d={STAR} />
+            </svg>
           ))}
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { initials } from "../lib/format";
 
 export function Logo({ compact = false }) {
@@ -57,6 +58,15 @@ export function Empty({ icon = "◇", title, children }) {
       <h3>{title}</h3>
       {children && <p className="muted">{children}</p>}
     </div>
+  );
+}
+
+// "← Back" link shown above a page title
+export function BackLink({ to = "/", children = "Back to home" }) {
+  return (
+    <Link to={to} className="back-link">
+      <span aria-hidden="true">←</span> {children}
+    </Link>
   );
 }
 

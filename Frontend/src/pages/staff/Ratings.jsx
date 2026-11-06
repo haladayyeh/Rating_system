@@ -18,6 +18,11 @@ export default function Ratings() {
   if (windowId) params.set("windowId", windowId);
   const { data, error, loading, reload } = useApi(`/staff/ratings?${params}`);
 
+  // While switching tabs, `data` can still be the previous tab's result for a moment
+  // (grouped vs. plain list). Only draw it when its shape matches the selected tab.
+  const isGroupedData = data?.length ? "group" in data[0] : Boolean(groupBy);
+  const dataMatchesTab = isGroupedData === Boolean(groupBy);
+
   return (
     <>
       <PageHeader eyebrow="Staff console" title="Ratings">
@@ -34,7 +39,7 @@ export default function Ratings() {
         ]}
       />
       <ErrorBox error={error} onRetry={reload} />
-      {loading && !data ? (
+      {(loading && !data) || !dataMatchesTab ? (
         <Spinner />
       ) : !data?.length ? (
         <Empty icon="★" title="No ratings yet" />
