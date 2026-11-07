@@ -7,13 +7,16 @@ Postgres runs in Docker with its data on a named volume (`pgdata`); no external 
 
 ```bash
 cp .env.example .env          # set JWT_SECRET (DB password is optional)
-docker compose up -d --build  # starts Postgres + the app on 127.0.0.1:3000
+docker compose up -d --build  # starts Postgres + the app at https://rank.reactiveweb.dev
 docker compose exec app npm run seed        # optional demo data (wipes the DB!)
 docker compose exec app npm run seed:demo   # optional sample ratings + abuse cases
 ```
 
 On first start the app sees an empty database and creates the tables from `Backend/db/schema.sql`.
-Point nginx/Caddy at `127.0.0.1:3000` (or set `APP_BIND=0.0.0.0` in `.env` to expose it directly).
+The site is served at **https://rank.reactiveweb.dev** by the VPS's Traefik (the same one in front of
+reactiveweb.dev): the app joins the `edge-traefik` network, and the Traefik labels in `docker-compose.yml`
+route the domain to it and get the HTTPS certificate from Let's Encrypt. The app has no public port of its own.
+DNS: `rank.reactiveweb.dev` needs an `A` record pointing to the VPS IP (or a `CNAME` to `reactiveweb.dev`).
 Postgres is only reachable from the VPS itself (`127.0.0.1:5432`).
 
 Update after pulling new code: `docker compose up -d --build` (data is kept).

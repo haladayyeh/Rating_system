@@ -1,4 +1,6 @@
 # Postgres on a local volume + the app (API + React frontend) in one container.
+# Served at https://rank.reactiveweb.dev through the VPS's Traefik (network edge-traefik),
+# same setup as reactiveweb.dev. Traefik gets the HTTPS certificate automatically.
 #
 #   docker compose up -d --build      # start everything
 #   docker compose up -d db           # only the database (for `npm run dev` on your machine)
@@ -38,8 +40,27 @@ services:
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
       PORT: 3000
-    ports:
-      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-3000}:3000"
+    # No host port: Traefik reaches the app over the edge-traefik network.
+    networks:
+      - default      # to reach the database
+      - edge-traefik # to be reached by Traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=edge-traefik"
+      - "traefik.http.middlewares.rank-compress.compress=true"
+      - "traefik.http.middlewares.rank-compress.compress.encodings=br,zstd,gzip"
+      - "traefik.http.middlewares.rank-secheaders.headers.customResponseHeaders.Server="
+      # HTTPS only for a year (the app itself already sets nosniff, frame DENY and referrer policy)
+      - "traefik.http.middlewares.rank-secheaders.headers.stsSeconds=31536000"
+      - "traefik.http.routers.rank-web.rule=Host(`rank.reactiveweb.dev`)"
+      - "traefik.http.routers.rank-web.entrypoints=websecure"
+      - "traefik.http.routers.rank-web.tls.certresolver=le"
+      - "traefik.http.routers.rank-web.middlewares=rank-compress@docker,rank-secheaders@docker"
+      - "traefik.http.services.rank-web.loadbalancer.server.port=3000"
 
 volumes:
   pgdata:
+
+networks:
+  edge-traefik:
+    external: true
