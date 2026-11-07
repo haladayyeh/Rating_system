@@ -54,9 +54,9 @@ function LootGrid() {
         const fixed = FIXED_LOOT[i];
         const spawn = spawns[i];
         return (
-          <span key={i} style={style} className={fixed ? "has-loot" : ""}>
-            {fixed && <PixelIcon name={fixed} size={28} className="loot" style={{ animationDelay: `${(i * 211) % 1600}ms` }} />}
-            {spawn && <PixelIcon key={spawn.id} name={spawn.icon} size={28} className="loot loot-spawn" />}
+          <span key={i} style={style} className={fixed || spawn ? "has-loot" : ""}>
+            {fixed && <PixelIcon name={fixed} size={44} className="loot" style={{ animationDelay: `${(i * 211) % 1600}ms` }} />}
+            {spawn && <PixelIcon key={spawn.id} name={spawn.icon} size={44} className="loot loot-spawn" />}
           </span>
         );
       })}
@@ -178,7 +178,7 @@ export default function Login() {
           </button>
           {unlocked && (
             <div className="unlock-burst" aria-hidden="true">
-              <PixelIcon name="key-gold" size={72} />
+              <PixelIcon name="key-gold" size={56} />
             </div>
           )}
         </form>

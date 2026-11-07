@@ -824,8 +824,9 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 /* غنائم البكسل بالشبكة (نجوم، عملات...) */
 .login-grid span { display: grid; place-items: center; transition: background 0.15s, border-color 0.15s; }
-.login-grid span.has-loot { border-color: rgba(255, 199, 44, 0.45); }
 .login-grid span:hover { background: rgba(0, 186, 188, 0.4); border-color: var(--turq); animation: none; }
+/* tiles holding an item: no tile outline/fill behind it, just the sprite */
+.login-grid span.has-loot, .login-grid span.has-loot:hover { border-color: transparent; background: transparent; animation: none; }
 .login-grid .loot { animation: loot-bob 1.6s steps(2, jump-none) infinite; }
 .login-grid .loot-spawn { animation: loot-pop 0.35s cubic-bezier(0.3, 1.6, 0.5, 1) both, loot-bob 1.6s steps(2, jump-none) 0.35s infinite, loot-out 0.3s ease-in 2.9s forwards; }
 @keyframes loot-bob { from { transform: translateY(0); } to { transform: translateY(-3px); } }
@@ -854,7 +855,7 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 .unlock-burst {
   position: absolute; inset: -20px; display: grid; place-items: center; pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 199, 44, 0.35), transparent 60%);
+  background: radial-gradient(circle, rgba(255, 199, 44, 0.18), transparent 60%);
   animation: unlock-flash 0.45s ease-out both;
 }
 .unlock-burst .px-icon { animation: unlock-key 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
