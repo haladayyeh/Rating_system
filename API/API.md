@@ -280,7 +280,7 @@ body: `{ "reason": "Confirmed revenge vote" }`
 `GET /api/leaderboard` (جوا `entries`)، `GET /api/staff/leaderboard` (جوا `ranking`)،
 `GET /api/staff/students`، `GET /api/staff/students/:id` (جوا `student`).
 
-### PATCH /api/me/nickname   (Student أو Staff)
+### PATCH /api/me/nickname   (Student بس، الستاف بياخد 403)
 ```json
 { "nickname": "Bug Hunter", "icon": "sword" }
 ```

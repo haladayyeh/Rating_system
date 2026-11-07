@@ -76,7 +76,10 @@ export default function Layout() {
         </nav>
         <div className="sidebar-user">
           <Avatar name={user.name} size={36} />
-          <UserInfo user={user} className="sidebar-user-info" onEdit={() => setEditingBadge(true)} />
+          <div className="sidebar-user-info">
+            <strong>{user.name}</strong>
+            <span className="mono">@{user.login}</span>
+          </div>
           <button className="icon-btn" onClick={logout} title="Log out" aria-label="Log out">
             ⏻
           </button>
@@ -95,12 +98,11 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
-      {editingBadge && <BadgeEditor onClose={() => setEditingBadge(false)} />}
     </div>
   );
 }
 
-// Name + badge of whoever is signed in. Clicking it opens the badge editor.
+// Student's name + badge in the top bar. Clicking it opens the badge editor (staff have no badges).
 function UserInfo({ user, className, onEdit }) {
   return (
     <button
@@ -115,7 +117,6 @@ function UserInfo({ user, className, onEdit }) {
       ) : (
         <span className="mono">@{user.login}</span>
       )}
-      <span className="user-edit-hint">{user.nickname ? "Edit badge" : "+ Add badge"}</span>
     </button>
   );
 }

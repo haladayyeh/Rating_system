@@ -1156,9 +1156,6 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 .user-edit:hover { background: rgba(255, 255, 255, 0.08); }
 .user-edit:focus-visible { outline: 2px solid var(--turq); outline-offset: 2px; }
-.user-edit-hint { display: none; font-size: 0.68rem; color: var(--turq); font-family: var(--pixel); }
-.user-edit:hover .user-edit-hint, .user-edit:focus-visible .user-edit-hint { display: block; }
-.sidebar-user-info.user-edit { display: flex; }
 .topbar-user-info.user-edit { display: flex; }
 @media (max-width: 860px) { .topbar-user-info.user-edit { display: none; } }
 

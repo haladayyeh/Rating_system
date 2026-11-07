@@ -39,6 +39,8 @@ function cleanNickname(raw) {
 // PATCH /api/me/nickname   body: { nickname: "Bug Hunter", icon: "sword" }
 // nickname فاضي أو null → بيشيل الشارة
 router.patch("/me/nickname", requireLogin, async (req, res) => {
+  // الشارة للطلاب بس، الستاف ما إلهم شارات
+  if (req.user.role !== "STUDENT") return res.status(403).json({ error: "Only students have name badges" });
   const { nickname, icon } = req.body || {};
   const cleaned = cleanNickname(nickname);
   if (cleaned.error) return res.status(400).json({ error: cleaned.error });
