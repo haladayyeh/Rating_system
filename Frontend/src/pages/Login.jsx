@@ -31,10 +31,11 @@ export default function Login() {
       <section className="login-hero">
         <Logo />
         <div className="login-hero-copy">
-          <h1>
-            Rate fairly &
-            <br />
-            <span className="hl-turq">Grow</span> <span className="hl-yellow">together.</span>
+          <h1 className="hero-title">
+            <span className="line"><span>Rate fairly &amp;</span></span>
+            <span className="line">
+              <span><span className="hl-turq">Grow</span> <span className="hl-yellow">together.</span></span>
+            </span>
           </h1>
         </div>
         <div className="login-grid" aria-hidden="true">

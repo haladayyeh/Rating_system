@@ -91,17 +91,9 @@ a { color: inherit; }
 /* ============ Logo ============ */
 .logo { display: flex; align-items: center; gap: 10px; }
 .logo-mark {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--turq);
-  color: var(--navy);
-  font-weight: 700;
-  font-size: 1.15rem;
-  letter-spacing: -0.04em;
-  box-shadow: inset 0 -4px 0 var(--yellow);
+  display: block;
+  height: 30px;
+  width: auto;
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.05; }
 .logo-text strong { font-size: 1.05rem; }
@@ -791,7 +783,7 @@ textarea.input { resize: vertical; min-height: 80px; }
   color: var(--white);
 }
 .topbar-home { color: inherit; text-decoration: none; border-radius: 10px; }
-.topbar .logo-mark { width: 38px; height: 38px; font-size: 1.05rem; }
+.topbar .logo-mark { height: 28px; }
 .topbar-user { display: flex; align-items: center; gap: 10px; }
 .topbar-user .avatar { background: var(--turq); color: var(--navy); }
 .topbar-user-info { display: flex; flex-direction: column; line-height: 1.15; }
@@ -948,7 +940,7 @@ textarea.input { resize: vertical; min-height: 80px; }
     color: var(--white);
   }
   .mobile-bar .icon-btn { color: var(--white); }
-  .mobile-bar .logo-mark { width: 32px; height: 32px; font-size: 0.95rem; }
+  .mobile-bar .logo-mark { height: 24px; }
   .content { padding: 22px 16px 48px; }
   .grid-overview { grid-template-columns: 1fr; }
   .login { grid-template-columns: 1fr; }
@@ -986,4 +978,21 @@ textarea.input { resize: vertical; min-height: 80px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* Login headline reveal: plays once on load */
+.hero-title .line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+}
+.hero-title .line > span {
+  display: inline-block;
+  animation: line-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.hero-title .line:nth-child(2) > span { animation-delay: 0.18s; }
+@keyframes line-up { from { transform: translateY(105%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-title .line > span { animation: none; }
 }

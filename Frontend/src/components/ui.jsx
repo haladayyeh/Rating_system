@@ -5,7 +5,7 @@ import { initials } from "../lib/format";
 export function Logo({ compact = false }) {
   return (
     <div className="logo">
-      <span className="logo-mark">42</span>
+      <img className="logo-mark" src="/42-logo-white.png" alt="42" />
       {!compact && (
         <span className="logo-text">
           <strong>Amman</strong>
