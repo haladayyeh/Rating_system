@@ -426,8 +426,48 @@ async function writeWindow(write) {
 }
 
 router.get("/windows", onlyStaff, async (req, res) => {
-  const r = await db.query(`SELECT ${WINDOW_FIELDS} FROM voting_windows ORDER BY starts_at DESC`);
+  // ratingsCount / abuseCount: عشان شاشة الحذف تحكي للستاف شو رح ينمسح معها
+  const r = await db.query(
+    `SELECT ${WINDOW_FIELDS},
+       (SELECT COUNT(*) FROM ratings r WHERE r.window_id = w.id)::int AS "ratingsCount",
+       (SELECT COUNT(*) FROM abuse_cases a WHERE a.window_id = w.id)::int AS "abuseCount"
+     FROM voting_windows w ORDER BY starts_at DESC`
+  );
   res.json(r.rows);
+});
+
+// DELETE /api/staff/windows/:id → بيحذف الفترة وكل إشي تابع إلها (تقييمات، labels، محاولات، حالات غش)
+// ما في رجعة! الفرونت بيطلب من الستاف يكتب اسم الفترة إذا فيها تقييمات
+router.delete("/windows/:id", onlyStaff, async (req, res) => {
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+    const w = await client.query(
+      `SELECT id, title, starts_at, ends_at FROM voting_windows WHERE id::text = $1 FOR UPDATE`,
+      [req.params.id]
+    );
+    if (w.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Window not found" });
+    }
+    const id = w.rows[0].id;
+    const abuse = await client.query(`DELETE FROM abuse_cases WHERE window_id = $1`, [id]);
+    const attempts = await client.query(`DELETE FROM vote_attempts WHERE window_id = $1`, [id]);
+    const ratings = await client.query(`DELETE FROM ratings WHERE window_id = $1`, [id]); // rating_labels: CASCADE
+    await client.query(`DELETE FROM voting_windows WHERE id = $1`, [id]);
+    await client.query("COMMIT");
+
+    const deleted = { ratings: ratings.rowCount, abuseCases: abuse.rowCount, voteAttempts: attempts.rowCount };
+    await audit(req.user.id, "DELETE_WINDOW", {
+      id, title: w.rows[0].title, startsAt: w.rows[0].starts_at, endsAt: w.rows[0].ends_at, ...deleted,
+    });
+    res.json({ deleted: true, ...deleted });
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
 });
 
 router.post("/windows", onlyStaff, async (req, res) => {

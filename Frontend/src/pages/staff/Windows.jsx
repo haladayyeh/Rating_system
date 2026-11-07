@@ -4,6 +4,7 @@ import { useApi } from "../../lib/hooks";
 import { formatDate, fromLocalInput, toLocalInput, windowStatus } from "../../lib/format";
 import { useToast } from "../../lib/toast";
 import { Empty, ErrorBox, Modal, PageHeader, Spinner, Toggle } from "../../components/ui";
+import PixelIcon from "../../components/PixelIcon";
 
 function defaults() {
   const start = new Date();
@@ -16,6 +17,7 @@ export default function Windows() {
   const toast = useToast();
   const { data, error, loading, reload } = useApi("/staff/windows");
   const [editing, setEditing] = useState(null); // null | "new" | window
+  const [deleting, setDeleting] = useState(null); // window
 
   async function toggleActive(w, isActive) {
     try {
@@ -54,6 +56,14 @@ export default function Windows() {
                 <div className="window-actions">
                   <Toggle checked={w.isActive} onChange={(v) => toggleActive(w, v)} label="Active" />
                   <button className="btn btn-ghost btn-sm" onClick={() => setEditing(w)}>Edit</button>
+                  <button
+                    className="icon-btn window-delete"
+                    onClick={() => setDeleting(w)}
+                    title="Delete window"
+                    aria-label={`Delete ${w.title}`}
+                  >
+                    <PixelIcon name="bomb" size={20} />
+                  </button>
                 </div>
               </li>
             );
@@ -65,6 +75,13 @@ export default function Windows() {
           initial={editing === "new" ? null : editing}
           onClose={() => setEditing(null)}
           onSaved={() => { setEditing(null); reload(); }}
+        />
+      )}
+      {deleting && (
+        <DeleteWindowModal
+          win={deleting}
+          onClose={() => setDeleting(null)}
+          onDeleted={() => { setDeleting(null); reload(); }}
         />
       )}
     </>
@@ -145,6 +162,73 @@ function WindowModal({ initial, onClose, onSaved }) {
         </label>
       </form>
       {invalid && <p className="small text-warn">End must be after start, and min ≤ max.</p>}
+      {error && <div className="alert alert-error">{error}</div>}
+    </Modal>
+  );
+}
+
+// Deleting a window also deletes everything that belongs to it. If it has ratings,
+// staff must type the window's title, so a stray click can't wipe a week of votes.
+function DeleteWindowModal({ win, onClose, onDeleted }) {
+  const toast = useToast();
+  const [typed, setTyped] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const hasData = win.ratingsCount > 0 || win.abuseCount > 0;
+  const confirmed = !hasData || typed.trim() === win.title.trim();
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+  async function remove() {
+    setError("");
+    setBusy(true);
+    try {
+      const r = await api(`/staff/windows/${win.id}`, { method: "DELETE" });
+      toast(r.ratings ? `“${win.title}” deleted with ${plural(r.ratings, "rating")}` : `“${win.title}” deleted`);
+      onDeleted();
+    } catch (e) {
+      setError(e.message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Modal
+      title="Delete voting window"
+      onClose={onClose}
+      footer={
+        <>
+          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-danger" disabled={!confirmed || busy} onClick={remove}>
+            {busy ? "Deleting…" : "Delete window"}
+          </button>
+        </>
+      }
+    >
+      <div className="delete-window">
+        <PixelIcon name="bomb" size={40} />
+        <div>
+          <p>
+            <strong>{win.title}</strong>
+            <br />
+            <span className="muted small">{formatDate(win.startsAt)} → {formatDate(win.endsAt)}</span>
+          </p>
+          {hasData ? (
+            <p>
+              This also <strong>permanently deletes</strong> {plural(win.ratingsCount, "rating")}
+              {win.abuseCount > 0 && <> and {plural(win.abuseCount, "abuse case")}</>} from this window,
+              and its leaderboard. This can't be undone.
+            </p>
+          ) : (
+            <p className="muted">No ratings in this window yet, nothing else will be deleted.</p>
+          )}
+        </div>
+      </div>
+      {hasData && (
+        <label className="field">
+          <span>Type <strong>{win.title}</strong> to confirm</span>
+          <input className="input" autoFocus value={typed} onChange={(e) => setTyped(e.target.value)} />
+        </label>
+      )}
       {error && <div className="alert alert-error">{error}</div>}
     </Modal>
   );
