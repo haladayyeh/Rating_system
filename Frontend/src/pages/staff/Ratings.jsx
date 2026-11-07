@@ -6,6 +6,7 @@ import { Stars } from "../../components/Stars";
 import InvalidateModal from "../../components/InvalidateModal";
 import WindowSelect from "../../components/WindowSelect";
 import { Badge, Empty, ErrorBox, PageHeader, Spinner, Tabs } from "../../components/ui";
+import LabelIcon from "../../components/LabelIcon";
 
 export default function Ratings() {
   const [groupBy, setGroupBy] = useState("label");
@@ -42,7 +43,7 @@ export default function Ratings() {
       {(loading && !data) || !dataMatchesTab ? (
         <Spinner />
       ) : !data?.length ? (
-        <Empty icon="★" title="No ratings yet" />
+        <Empty icon="star-blue" title="No ratings yet" />
       ) : groupBy ? (
         <div className="groups">
           {data.map((g) => {
@@ -97,7 +98,7 @@ function RatingTable({ ratings, onInvalidate }) {
               <td><Stars value={r.stars} size={14} /></td>
               <td>
                 <div className="chips chips-tight">
-                  {r.labels.map((l) => <Badge key={l}>{l}</Badge>)}
+                  {r.labels.map((l) => <Badge key={l}><LabelIcon name={l} size={14} />{l}</Badge>)}
                 </div>
                 {r.explanation && <div className="small muted explanation-inline">“{r.explanation}”</div>}
               </td>

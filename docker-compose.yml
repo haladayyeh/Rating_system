@@ -19,7 +19,7 @@ services:
       # (only `docker compose down -v` deletes it). Tables are created by the app on first start.
       - pgdata:/var/lib/postgresql/data
     ports:
-      # Localhost only — never exposed to the internet
+      # Localhost only, never exposed to the internet
       - "127.0.0.1:${DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U rank -d rank"]

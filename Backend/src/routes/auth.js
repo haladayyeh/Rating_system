@@ -17,7 +17,7 @@ router.post("/login", async (req, res) => {
 
   // 1) بندوّر على الشخص بالداتابيس
   const result = await db.query(
-    "SELECT id, login, name, role, password_hash FROM users WHERE login = $1",
+    "SELECT id, login, name, role, nickname, nickname_icon, password_hash FROM users WHERE login = $1",
     [login]
   );
   const user = result.rows[0];
@@ -38,14 +38,17 @@ router.post("/login", async (req, res) => {
 
   res.json({
     token,
-    user: { id: user.id, login: user.login, name: user.name, role: user.role },
+    user: {
+      id: user.id, login: user.login, name: user.name, role: user.role,
+      nickname: user.nickname, nicknameIcon: user.nickname_icon,
+    },
   });
 });
 
 // GET /api/auth/me  → "مين أنا؟"
 router.get("/me", requireLogin, async (req, res) => {
   const result = await db.query(
-    "SELECT id, login, name, role FROM users WHERE id = $1",
+    `SELECT id, login, name, role, nickname, nickname_icon AS "nicknameIcon" FROM users WHERE id = $1`,
     [req.user.id]
   );
   res.json(result.rows[0]);

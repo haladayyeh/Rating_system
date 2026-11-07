@@ -24,18 +24,24 @@ export function AuthProvider({ children }) {
       .finally(() => setReady(true));
   }, [logout]);
 
-  const login = useCallback(async (loginName, password) => {
+  // beforeEnter (optional): awaited after the password is accepted but before the app
+  // switches to the dashboard, e.g. the login page's short "unlock" animation
+  const login = useCallback(async (loginName, password, beforeEnter) => {
     const { token, user } = await api("/auth/login", {
       method: "POST",
       body: { login: loginName, password },
     });
     tokenStore.set(token);
+    if (beforeEnter) await beforeEnter(user);
     setUser(user);
     return user;
   }, []);
 
+  // Merge changes into the signed-in user (e.g. after editing the nickname badge)
+  const updateUser = useCallback((patch) => setUser((u) => (u ? { ...u, ...patch } : u)), []);
+
   return (
-    <AuthContext.Provider value={{ user, ready, login, logout }}>
+    <AuthContext.Provider value={{ user, ready, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

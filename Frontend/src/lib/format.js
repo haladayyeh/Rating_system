@@ -8,7 +8,7 @@ export function initials(name = "") {
 }
 
 export function formatDate(iso, withTime = true) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso);
   return d.toLocaleString(undefined, {
     day: "numeric",
@@ -28,7 +28,7 @@ export function timeAgo(iso) {
 
 // 3 → "3.0", 2.5 → "2.5", 2.666 → "2.67"
 export function avg(n) {
-  if (n === null || n === undefined) return "—";
+  if (n === null || n === undefined) return "-";
   const x = Number(n);
   return Number.isInteger(x) ? x.toFixed(1) : x.toFixed(2).replace(/0$/, "");
 }

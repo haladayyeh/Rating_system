@@ -4,6 +4,7 @@ import { useApi, useDebounced } from "../../lib/hooks";
 import { avg } from "../../lib/format";
 import { Stars } from "../../components/Stars";
 import { Avatar, Empty, ErrorBox, PageHeader, SearchInput, Spinner } from "../../components/ui";
+import NameBadge from "../../components/NameBadge";
 
 const SORTS = {
   name: (a, b) => a.name.localeCompare(b.name),
@@ -39,7 +40,7 @@ export default function Students() {
       {loading && !data ? (
         <Spinner />
       ) : rows.length === 0 ? (
-        <Empty icon="⌕" title="No students found" />
+        <Empty icon="question" title="No students found" />
       ) : (
         <div className="table-wrap card">
           <table className="table table-click">
@@ -59,7 +60,7 @@ export default function Students() {
                     <div className="cell-person">
                       <Avatar name={s.name} size={34} />
                       <div>
-                        <strong>{s.name}</strong>
+                        <strong>{s.name}</strong> <NameBadge nickname={s.nickname} icon={s.nicknameIcon} size="sm" />
                         <div className="mono muted small">@{s.login}</div>
                       </div>
                     </div>
@@ -68,7 +69,7 @@ export default function Students() {
                     {s.average !== null ? (
                       <span className="cell-avg"><Stars value={s.average} size={14} /> <span className="mono">{avg(s.average)}</span></span>
                     ) : (
-                      <span className="muted">—</span>
+                      <span className="muted">-</span>
                     )}
                   </td>
                   <td className="num mono">{s.ratingsReceived}</td>

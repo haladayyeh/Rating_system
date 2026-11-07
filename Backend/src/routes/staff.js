@@ -72,6 +72,8 @@ router.get("/students", onlyStaff, async (req, res) => {
       u.id,
       u.name,
       u.login,
+      u.nickname,
+      u.nickname_icon AS "nicknameIcon",
       r.average,
       COALESCE(r.ratings_received, 0)::int AS "ratingsReceived",
       COALESCE(v.votes_given, 0)::int AS "votesGiven"
@@ -127,7 +129,7 @@ const RATING_SELECT = `
 router.get("/students/:id", onlyStaff, async (req, res) => {
   // First, make sure this student exists
   const studentResult = await db.query(
-    `SELECT id, name, login
+    `SELECT id, name, login, nickname, nickname_icon AS "nicknameIcon"
      FROM users
      WHERE id::text = $1 AND role = 'STUDENT'`,
     [req.params.id]
@@ -225,6 +227,21 @@ router.get("/students/:id", onlyStaff, async (req, res) => {
   });
 });
 
+
+// DELETE /api/staff/students/:id/nickname → الستاف بيشيل لقب مش مناسب
+router.delete("/students/:id/nickname", onlyStaff, async (req, res) => {
+  // "old" بياخذ اللقب القديم قبل المسح، عشان يتسجّل بالـ audit log
+  const r = await db.query(
+    `UPDATE users u SET nickname = NULL, nickname_icon = NULL
+     FROM (SELECT id, nickname FROM users WHERE id::text = $1 AND role = 'STUDENT') old
+     WHERE u.id = old.id
+     RETURNING old.nickname AS "oldNickname"`,
+    [req.params.id]
+  );
+  if (r.rows.length === 0) return res.status(404).json({ error: "Student not found" });
+  await audit(req.user.id, "CLEAR_NICKNAME", { studentId: req.params.id, nickname: r.rows[0].oldNickname });
+  res.json({ cleared: true });
+});
 
 // GET /api/staff/ratings?groupBy=label|stars|student&windowId=...
 router.get("/ratings", onlyStaff, async (req, res) => {

@@ -7,6 +7,7 @@ import { useToast } from "../../lib/toast";
 import { Stars } from "../../components/Stars";
 import Podium from "../../components/Podium";
 import { Avatar, Empty, ErrorBox, PageHeader, Spinner, Toggle } from "../../components/ui";
+import NameBadge from "../../components/NameBadge";
 
 export default function StaffLeaderboard() {
   const toast = useToast();
@@ -36,7 +37,7 @@ export default function StaffLeaderboard() {
 
   if (loading && !data) return <Spinner />;
   if (error) return <ErrorBox error={error} onRetry={reload} />;
-  if (!w) return (<><PageHeader eyebrow="Staff console" title="Leaderboard" /><Empty icon="▲" title="No voting windows yet" /></>);
+  if (!w) return (<><PageHeader eyebrow="Staff console" title="Leaderboard" /><Empty icon="clock" title="No voting windows yet" /></>);
 
   const ranking = data.ranking;
   const dirty = form && (form.topN !== w.topN || form.showAverages !== w.showAverages || form.title !== w.leaderboardTitle);
@@ -89,7 +90,7 @@ export default function StaffLeaderboard() {
             Ranked by average stars (valid ratings only). Students need at least {data.minRatingsToRank} ratings to be ranked.
           </p>
           {ranking.length === 0 ? (
-            <Empty icon="▲" title="No one ranked yet">Students appear once they have {data.minRatingsToRank}+ ratings.</Empty>
+            <Empty icon="crown" title="No one ranked yet">Students appear once they have {data.minRatingsToRank}+ ratings.</Empty>
           ) : (
             <>
               <Podium entries={ranking} />
@@ -106,7 +107,7 @@ export default function StaffLeaderboard() {
                           <div className="cell-person">
                             <Avatar name={r.name} size={30} />
                             <Link className="link-plain" to={`/staff/students/${r.id}`}>
-                              <strong>{r.name}</strong> <span className="mono muted small">@{r.login}</span>
+                              <strong>{r.name}</strong> <NameBadge nickname={r.nickname} icon={r.nicknameIcon} size="sm" /> <span className="mono muted small">@{r.login}</span>
                             </Link>
                           </div>
                         </td>

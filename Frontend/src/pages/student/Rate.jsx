@@ -4,6 +4,9 @@ import { useApi, useDebounced } from "../../lib/hooks";
 import { useToast } from "../../lib/toast";
 import { StarPicker, STAR_MEANING } from "../../components/Stars";
 import { Avatar, BackLink, Badge, Empty, ErrorBox, Modal, PageHeader, Progress, SearchInput, Spinner } from "../../components/ui";
+import PixelIcon from "../../components/PixelIcon";
+import LabelIcon from "../../components/LabelIcon";
+import NameBadge from "../../components/NameBadge";
 
 export default function Rate() {
   const win = useApi("/windows/current");
@@ -23,7 +26,7 @@ export default function Rate() {
       <>
         <BackLink />
         <PageHeader eyebrow="Rate peers" title="Voting is closed" />
-        <Empty icon="◷" title="No open voting window">
+        <Empty icon="clock" title="No open voting window">
           Come back when staff opens the next one.
         </Empty>
       </>
@@ -51,7 +54,7 @@ export default function Rate() {
         )}
       </PageHeader>
 
-      {outOfVotes && <div className="alert alert-info">You've used all your votes for this window. Thanks for rating!</div>}
+      {outOfVotes && <div className="alert alert-info"><PixelIcon name="coin" size={22} />You've used all your votes for this window. Thanks for rating!</div>}
 
       <SearchInput value={q} onChange={setQ} placeholder="Search by name or intra login…" autoFocus />
 
@@ -59,7 +62,7 @@ export default function Rate() {
       {students.loading && !students.data ? (
         <Spinner />
       ) : students.data?.length === 0 ? (
-        <Empty icon="⌕" title="No students found">Try another name or login.</Empty>
+        <Empty icon="question" title="No students found">Try another name or login.</Empty>
       ) : (
         <ul className={`people-grid ${students.loading ? "is-stale" : ""}`}>
           {students.data?.map((s) => (
@@ -68,9 +71,10 @@ export default function Rate() {
               <div className="person-info">
                 <strong>{s.name}</strong>
                 <span className="mono muted">@{s.login}</span>
+                <NameBadge nickname={s.nickname} icon={s.nicknameIcon} size="sm" />
               </div>
               {s.alreadyRated ? (
-                <Badge kind="POSITIVE">Rated ✓</Badge>
+                <Badge kind="POSITIVE"><PixelIcon name="check" size={14} />Rated</Badge>
               ) : (
                 <button className="btn btn-primary btn-sm" disabled={outOfVotes} onClick={() => setTarget(s)}>
                   Rate
@@ -151,6 +155,7 @@ function RateModal({ student, onClose, onRated }) {
         <div className="rate-head-info">
           <strong>{student.name}</strong>
           <div className="mono muted">@{student.login}</div>
+          <NameBadge nickname={student.nickname} icon={student.nicknameIcon} size="sm" />
         </div>
         <StarPicker value={stars} onChange={setStars} />
       </div>
@@ -175,6 +180,7 @@ function RateModal({ student, onClose, onRated }) {
                   aria-pressed={picked.includes(l.id)}
                   onClick={() => toggle(l.id)}
                 >
+                  <LabelIcon name={l.name} severity={l.severity} size={18} />
                   {l.name}
                   {l.severity === "SERIOUS" && <span className="chip-flag">serious</span>}
                 </button>
@@ -187,7 +193,7 @@ function RateModal({ student, onClose, onRated }) {
       {hasSerious && (
         <label className="field">
           <span>
-            <span className="text-danger">Explain what happened</span> <small className="muted">(required, min. 10 characters — only staff see this)</small>
+            <span className="text-danger">Explain what happened</span> <small className="muted">(required, min. 10 characters, only staff see this)</small>
           </span>
           <textarea
             className="input"

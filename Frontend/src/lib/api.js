@@ -53,7 +53,7 @@ export async function api(path, { method = "GET", body, raw = false } = {}) {
   // (e.g. a different app running on the backend's port)
   if (res.ok && data === null && res.status !== 204) {
     throw new ApiError(
-      "Got an unexpected response from the server — another app may be using the backend's port. Check the backend logs.",
+      "Got an unexpected response from the server, another app may be using the backend's port. Check the backend logs.",
       res.status,
       null
     );
@@ -63,7 +63,7 @@ export async function api(path, { method = "GET", body, raw = false } = {}) {
     if (res.status === 401 && path !== "/auth/login" && onUnauthorized) onUnauthorized();
     let message = data?.error || `Request failed (${res.status})`;
     if (res.status === 429 && data?.retryAfterSeconds) {
-      message += ` — try again in ${formatSeconds(data.retryAfterSeconds)}.`;
+      message += `, try again in ${formatSeconds(data.retryAfterSeconds)}.`;
     }
     throw new ApiError(message, res.status, data);
   }

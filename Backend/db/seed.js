@@ -76,7 +76,7 @@ async function main() {
      VALUES ('Week 1 voting', now(), now() + interval '3 days', 2, 5)`
   );
 
-  console.log("✅ Done! Login with any student (e.g. hdaya) or 'staff' — password: 123456");
+  console.log("✅ Done! Login with any student (e.g. hdaya) or 'staff': password: 123456");
   await db.end();
 }
 

@@ -1,4 +1,7 @@
 import { createContext, useCallback, useContext, useState } from "react";
+import PixelIcon from "../components/PixelIcon";
+
+const TOAST_ICON = { success: "check", error: "cross", info: "exclamation" };
 
 const ToastContext = createContext(() => {});
 let nextId = 1;
@@ -18,7 +21,7 @@ export function ToastProvider({ children }) {
       <div className="toasts" role="status" aria-live="polite">
         {toasts.map((t) => (
           <div key={t.id} className={`toast toast-${t.type}`}>
-            <span className="toast-dot" />
+            <PixelIcon name={TOAST_ICON[t.type] || "exclamation"} size={22} />
             {t.message}
           </div>
         ))}

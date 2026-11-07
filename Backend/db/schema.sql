@@ -108,10 +108,15 @@ CREATE INDEX idx_ratings_rater  ON ratings (rater_id);
 CREATE INDEX idx_ratings_window ON ratings (window_id, created_at);
 CREATE INDEX idx_attempts_rater ON vote_attempts (rater_id, created_at);
 
--- 9) إعدادات لوحة "Top students" (بتنضاف لحالها كمان لما السيرفر يشتغل — src/migrate.js)
+-- 9) إعدادات لوحة "Top students" (بتنضاف لحالها كمان لما السيرفر يشتغل : src/migrate.js)
 ALTER TABLE voting_windows
   ADD COLUMN IF NOT EXISTS leaderboard_shared        BOOLEAN NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS leaderboard_top_n         INT     NOT NULL DEFAULT 10,
   ADD COLUMN IF NOT EXISTS leaderboard_show_averages BOOLEAN NOT NULL DEFAULT true,
   ADD COLUMN IF NOT EXISTS leaderboard_title         TEXT    NOT NULL DEFAULT 'Top students of the week',
   ADD COLUMN IF NOT EXISTS leaderboard_shared_at     TIMESTAMPTZ;
+
+-- 10) شارة اللقب جنب الاسم (بتنضاف لحالها كمان لما السيرفر يشتغل : src/migrate.js)
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS nickname      TEXT,
+  ADD COLUMN IF NOT EXISTS nickname_icon TEXT;

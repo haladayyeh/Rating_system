@@ -1,10 +1,10 @@
-# Frontend — 42 Amman Peer Rank
+# Frontend: 42 Amman Peer Rank
 
 React + Vite. Talks to the backend in `../Backend` using the contract in `../API/API.md`.
 
 ## Run
 
-Run everything from the project root — see [../README.md](../README.md) (`npm run dev`, or `npm run build && npm start`).
+Run everything from the project root, see [../README.md](../README.md) (`npm run dev`, or `npm run build && npm start`).
 
 ## Structure
 

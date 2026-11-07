@@ -1,6 +1,6 @@
 # Rating_system
 
-42 Amman peer rating system — Express + PostgreSQL backend, React + Vite frontend.
+42 Amman peer rating system : Express + PostgreSQL backend, React + Vite frontend.
 Postgres runs in Docker with its data on a named volume (`pgdata`); no external database service.
 
 ## Deploy on the VPS
@@ -34,7 +34,7 @@ cp .env.example .env && docker compose up -d db   # only the database
 npm install                                       # root + Backend + Frontend
 ```
 
-Same `.env` as production — no database URL to copy anywhere. The backend reads the root `.env` and
+Same `.env` as production : no database URL to copy anywhere. The backend reads the root `.env` and
 connects to the local container (password `rank` unless you set `POSTGRES_PASSWORD`). (To use a different Postgres, set
 `DATABASE_URL` in `.env` or `Backend/.env`; it takes priority.)
 

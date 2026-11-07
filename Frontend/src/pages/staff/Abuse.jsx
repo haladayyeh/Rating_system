@@ -6,11 +6,20 @@ import { formatDate, timeAgo } from "../../lib/format";
 import { useToast } from "../../lib/toast";
 import { Stars } from "../../components/Stars";
 import WindowSelect from "../../components/WindowSelect";
+import PixelIcon from "../../components/PixelIcon";
 import { Badge, Empty, ErrorBox, Modal, PageHeader, Spinner, Tabs } from "../../components/ui";
+import LabelIcon from "../../components/LabelIcon";
 
+// One pixel icon per kind of abuse
 const TYPE_ICON = {
-  BULK: "▦", REPEATED: "↻", GROUP: "◎", REVENGE: "⇄",
-  FRIENDS_BOOST: "⇈", TOO_FAST: "⚡", EXTREME_VOTER: "±", MALICIOUS_SERIOUS: "⚠",
+  BULK: "envelope",          // a pile of votes dumped at once
+  REPEATED: "key-silver",    // trying the lock again and again
+  GROUP: "helmet",           // a coordinated squad
+  REVENGE: "sword",          // retaliation
+  FRIENDS_BOOST: "potion-teal", // an unfair power-up
+  TOO_FAST: "fire",          // blazing through votes
+  EXTREME_VOTER: "bomb",     // only ever 1★ or 3★
+  MALICIOUS_SERIOUS: "skull",
 };
 
 export default function Abuse() {
@@ -54,14 +63,16 @@ export default function Abuse() {
       {loading && !data ? (
         <Spinner label="Running detection…" />
       ) : list.length === 0 ? (
-        <Empty icon="✓" title={status === "OPEN" ? "No open cases" : "Nothing here"}>
+        <Empty icon={status === "OPEN" ? "shield" : "question"} title={status === "OPEN" ? "No open cases" : "Nothing here"}>
           {status === "OPEN" && "Detection runs every time this page loads."}
         </Empty>
       ) : (
         <ul className="cases">
           {list.map((c) => (
             <li key={c.id} className={`case card case-${c.severity.toLowerCase()} case-${c.status.toLowerCase()}`}>
-              <div className="case-icon" aria-hidden="true">{TYPE_ICON[c.type] || "⚑"}</div>
+              <div className="case-icon" title={c.title}>
+                <PixelIcon name={TYPE_ICON[c.type] || "exclamation"} size={36} />
+              </div>
               <div className="case-body">
                 <div className="case-top">
                   <h3>{c.title}</h3>
@@ -116,7 +127,11 @@ function CaseRatings({ id }) {
         <li key={r.id} className={r.invalidated ? "is-invalid" : ""}>
           <span><strong>{r.fromName}</strong> → <strong>{r.toName}</strong></span>
           <Stars value={r.stars} size={12} />
-          <span className="muted small">{r.labels.join(", ")}</span>
+          <span className="case-labels small">
+            {r.labels.map((l) => (
+              <span key={l} className="case-label"><LabelIcon name={l} size={14} />{l}</span>
+            ))}
+          </span>
           <span className="muted small">{formatDate(r.createdAt)}</span>
           {r.explanation && <em className="small">“{r.explanation}”</em>}
         </li>
@@ -152,7 +167,10 @@ function ConfirmModal({ c, onClose, onDone }) {
         </>
       }
     >
-      <p><strong>{c.title}</strong> — {c.summary}</p>
+      <div className="confirm-case">
+        <PixelIcon name={TYPE_ICON[c.type] || "exclamation"} size={36} />
+        <p><strong>{c.title}</strong> - {c.summary}</p>
+      </div>
       <label className="check">
         <input type="checkbox" checked={invalidate} onChange={(e) => setInvalidate(e.target.checked)} />
         Also invalidate the {c.ratingIds.length} rating{c.ratingIds.length === 1 ? "" : "s"} involved

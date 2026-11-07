@@ -20,15 +20,15 @@ export default function Participation() {
       </PageHeader>
       <ErrorBox error={error} onRetry={reload} />
       {noWindows ? (
-        <Empty icon="◷" title="No voting windows yet" />
+        <Empty icon="clock" title="No voting windows yet" />
       ) : (loading || !windowId) && !data ? (
         <Spinner />
       ) : data ? (
         <>
           <div className="stats-row">
-            <Stat label="Voted" value={data.voted.length} tone="good" />
-            <Stat label="Not voted" value={data.notVoted.length} />
-            <Stat label="Below minimum" value={data.belowMinimum.length} hint={`min ${data.minVotes} · max ${data.maxVotes}`} tone="warn" />
+            <Stat icon="check" label="Voted" value={data.voted.length} tone="good" />
+            <Stat icon="heart-empty" label="Not voted" value={data.notVoted.length} />
+            <Stat icon="arrow-down" label="Below minimum" value={data.belowMinimum.length} hint={`min ${data.minVotes} · max ${data.maxVotes}`} tone="warn" />
           </div>
           <Tabs
             value={tab}
@@ -40,7 +40,7 @@ export default function Participation() {
             ]}
           />
           {list.length === 0 ? (
-            <Empty icon="✓" title="Nobody here" />
+            <Empty icon="check" title="Nobody here" />
           ) : (
             <ul className="people-grid">
               {list.map((s) => (
@@ -61,7 +61,7 @@ export default function Participation() {
           )}
         </>
       ) : (
-        <Empty icon="◷" title="No voting windows yet" />
+        <Empty icon="clock" title="No voting windows yet" />
       )}
     </>
   );

@@ -105,7 +105,7 @@ router.get("/students", onlyStudents, async (req, res) => {
   const pattern = "%" + q.replace(/[\\%_]/g, "\\$&") + "%";
 
   const result = await db.query(
-    `SELECT u.id, u.login, u.name,
+    `SELECT u.id, u.login, u.name, u.nickname, u.nickname_icon AS "nicknameIcon",
             EXISTS (
               SELECT 1 FROM ratings r
               WHERE r.rater_id = $1 AND r.ratee_id = u.id AND r.window_id = $2

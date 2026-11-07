@@ -3,6 +3,7 @@ import { avg } from "../../lib/format";
 import { Stars } from "../../components/Stars";
 import Podium from "../../components/Podium";
 import { Avatar, BackLink, Empty, ErrorBox, PageHeader, Spinner } from "../../components/ui";
+import NameBadge from "../../components/NameBadge";
 
 export default function StudentLeaderboard() {
   const { data, error, loading, reload } = useApi("/leaderboard");
@@ -15,7 +16,7 @@ export default function StudentLeaderboard() {
       <>
         <BackLink />
         <PageHeader eyebrow="Leaderboard" title="Top students" />
-        <Empty icon="▲" title="Not shared yet">
+        <Empty icon="trophy" title="Not shared yet">
           Staff will publish the leaderboard when the voting window wraps up.
         </Empty>
       </>
@@ -28,7 +29,7 @@ export default function StudentLeaderboard() {
       <BackLink />
       <PageHeader eyebrow={data.windowTitle} title={data.title} />
       {data.entries.length === 0 ? (
-        <Empty icon="▲" title="No ranked students yet" />
+        <Empty icon="crown" title="No ranked students yet" />
       ) : (
         <>
           <Podium entries={data.entries} showAverages={data.showAverages} />
@@ -41,6 +42,7 @@ export default function StudentLeaderboard() {
                   <span className="board-name">
                     {e.name}
                     {e.isMe && <em className="you-tag">you</em>}
+                    <NameBadge nickname={e.nickname} icon={e.nicknameIcon} size="sm" />
                   </span>
                   {data.showAverages && (
                     <span className="board-avg">

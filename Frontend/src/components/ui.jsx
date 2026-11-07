@@ -1,11 +1,12 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { initials } from "../lib/format";
+import PixelIcon from "./PixelIcon";
 
 export function Logo({ compact = false }) {
   return (
     <div className="logo">
-      <span className="logo-mark">42</span>
+      <img className="logo-mark" src="/logo-42.png" alt="42" width="228" height="160" />
       {!compact && (
         <span className="logo-text">
           <strong>Amman</strong>
@@ -51,10 +52,13 @@ export function ErrorBox({ error, onRetry }) {
   );
 }
 
-export function Empty({ icon = "◇", title, children }) {
+// icon = a pixel icon name (see PixelIcon.jsx)
+export function Empty({ icon = "question", title, children }) {
   return (
     <div className="empty">
-      <div className="empty-icon">{icon}</div>
+      <div className="empty-icon">
+        <PixelIcon name={icon} size={40} />
+      </div>
       <h3>{title}</h3>
       {children && <p className="muted">{children}</p>}
     </div>
@@ -98,9 +102,10 @@ export function Badge({ children, kind, className = "" }) {
   return <span className={`badge ${SEVERITY_CLASS[kind] || ""} ${className}`}>{children}</span>;
 }
 
-export function Stat({ label, value, hint, tone = "default" }) {
+export function Stat({ label, value, hint, tone = "default", icon }) {
   return (
     <div className={`stat stat-${tone}`}>
+      {icon && <PixelIcon name={icon} size={26} className="stat-icon" />}
       <span className="stat-label">{label}</span>
       <span className="stat-value">{value}</span>
       {hint && <span className="stat-hint">{hint}</span>}

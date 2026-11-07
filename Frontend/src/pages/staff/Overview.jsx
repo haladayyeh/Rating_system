@@ -43,13 +43,13 @@ export default function Overview() {
 
       <ErrorBox error={error} onRetry={reload} />
       {noWindows ? (
-        <Empty icon="◷" title="No voting windows yet"><Link className="link" to="/staff/windows">Create the first one →</Link></Empty>
+        <Empty icon="clock" title="No voting windows yet"><Link className="link" to="/staff/windows">Create the first one →</Link></Empty>
       ) : loading || !windowId ? (
         <Spinner />
       ) : data?.window ? (
         <OverviewBody d={data} />
       ) : (
-        <Empty icon="◷" title="No data for this window" />
+        <Empty icon="clock" title="No data for this window" />
       )}
     </>
   );
@@ -91,11 +91,11 @@ function OverviewBody({ d }) {
       </section>
 
       <div className="stats-row">
-        <Stat label="Ratings" value={d.totalRatings} hint={d.invalidatedRatings ? `${d.invalidatedRatings} invalidated` : "valid ratings"} />
-        <Stat label="Didn't vote" value={d.studentsWhoDidNotRate} hint="no votes yet" />
-        <Stat label="Below minimum" value={d.studentsBelowMinimum} hint={`< ${w.minVotes} votes`} tone={d.studentsBelowMinimum ? "warn" : "default"} />
+        <Stat icon="star-gold" label="Ratings" value={d.totalRatings} hint={d.invalidatedRatings ? `${d.invalidatedRatings} invalidated` : "valid ratings"} />
+        <Stat icon="heart-empty" label="Didn't vote" value={d.studentsWhoDidNotRate} hint="no votes yet" />
+        <Stat icon="arrow-down" label="Below minimum" value={d.studentsBelowMinimum} hint={`< ${w.minVotes} votes`} tone={d.studentsBelowMinimum ? "warn" : "default"} />
         <Link to="/staff/abuse" className="stat-link">
-          <Stat label="Open abuse cases" value={d.openAbuseCases} hint="review now →" tone={d.openAbuseCases ? "danger" : "default"} />
+          <Stat icon="skull" label="Open abuse cases" value={d.openAbuseCases} hint="review now →" tone={d.openAbuseCases ? "danger" : "default"} />
         </Link>
       </div>
     </div>

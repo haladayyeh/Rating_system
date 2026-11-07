@@ -40,7 +40,7 @@ async function main() {
   }
 
   console.log("Normal ratings...");
-  // كل طالب بيقيّم اللي بعده (3 نجوم) واللي بعد 3 (نجمتين) — بدون تبادل وبأوقات متباعدة
+  // كل طالب بيقيّم اللي بعده (3 نجوم) واللي بعد 3 (نجمتين) : بدون تبادل وبأوقات متباعدة
   const happy = ["Helpful", "Good teammate", "Clear explainer", "Respectful", "Knows their code", "Thorough", "Well prepared"];
   const okay = ["Helpful", "Late", "Rushed", "Clear explainer", "Defensive", "Good teammate"];
   const skip = new Set([4]); // طالب رقم 4 هو الـ "extreme voter"، فما بنعطيه تقييمات طبيعية

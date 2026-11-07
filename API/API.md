@@ -1,4 +1,4 @@
-# Rating System — API Contract
+# Rating System : API Contract
 
 > هاد الملف هو "الاتفاق" بين الباك اند والفرونت اند.
 > الفرونت بيشتغل على هاي الأشكال ببيانات وهمية لحد ما يجهز الباك اند.
@@ -9,7 +9,7 @@ Base URL (local): `http://localhost:3000/api`
 Auth: بعد تسجيل الدخول السيرفر برجع token، والفرونت بيبعته بكل طلب بالـ header:
 `Authorization: Bearer <token>`
 
-Rate limits — إذا انتجاوزوا، السيرفر بيرجّع `429` مع `{ "error": "...", "retryAfterSeconds": 60 }`:
+Rate limits, إذا انتجاوزوا، السيرفر بيرجّع `429` مع `{ "error": "...", "retryAfterSeconds": 60 }`:
 - `POST /api/auth/login`: 10 محاولات كل 15 دقيقة لنفس الاسم من نفس الجهاز
 - `POST /api/ratings`: 20 طلب بالدقيقة
 - كل الـ API: 300 طلب بالدقيقة
@@ -123,7 +123,7 @@ Errors 400:
 
 ---
 
-## 3. Staff (role = STAFF) — أي طالب بيحاول يفتحهم بيرجعله 403
+## 3. Staff (role = STAFF) : أي طالب بيحاول يفتحهم بيرجعله 403
 
 ### GET /api/staff/overview
 ```json
@@ -197,7 +197,7 @@ Errors 400:
 
 ---
 
-## 3.5 Leaderboard — "Top students"
+## 3.5 Leaderboard : "Top students"
 
 الستاف بيشوف الترتيب الكامل دايماً، وهو اللي بيقرر إذا ووقتيش يشاركه مع الطلاب.
 الترتيب حسب المتوسط (التقييمات المش ملغية)، وبيدخل فيه بس اللي عنده 3 تقييمات أو أكثر.
@@ -267,3 +267,40 @@ status = `OPEN` | `CONFIRMED` | `DISMISSED`
 ### POST /api/staff/abuse/:id/dismiss
 ### POST /api/staff/ratings/:id/invalidate
 body: `{ "reason": "Confirmed revenge vote" }`
+
+---
+
+## 5. Nickname badge : شارة اللقب
+
+كل مستخدم (طالب أو ستاف) بيقدر يحط لقب قصير + أيقونة بكسل جنب اسمه. بيبيّن وين ما الاسم بيبيّن
+(الـ top bar، قائمة التقييم، اللوحة، صفحات الستاف).
+
+الحقول الجديدة `nickname` و `nicknameIcon` (أو `null` إذا ما في شارة) بترجع مع:
+`POST /api/auth/login` (جوا `user`)، `GET /api/auth/me`، `GET /api/students`،
+`GET /api/leaderboard` (جوا `entries`)، `GET /api/staff/leaderboard` (جوا `ranking`)،
+`GET /api/staff/students`، `GET /api/staff/students/:id` (جوا `student`).
+
+### PATCH /api/me/nickname   (Student أو Staff)
+```json
+{ "nickname": "Bug Hunter", "icon": "sword" }
+```
+Response 200:
+```json
+{ "nickname": "Bug Hunter", "nicknameIcon": "sword" }
+```
+- `nickname` من 2 لـ 20 حرف: حروف بأي لغة، أرقام، مسافات، و `- _ . ! ? ' & + #`
+- `nickname` فاضي أو `null` → بيشيل الشارة
+- `icon` لازم يكون اسم من `Frontend/public/pixel` (مثلاً `sword`, `crown`, `heart`). الافتراضي `star-gold`.
+
+Errors 400:
+```json
+{ "error": "Nickname must be 2 to 20 characters" }
+{ "error": "Nickname can only use letters, numbers, spaces and - _ . ! ? ' & + #" }
+{ "error": "Unknown icon" }
+```
+
+### DELETE /api/staff/students/:id/nickname   (Staff)
+الستاف بيشيل لقب مش مناسب. بيتسجّل بالـ audit log (`CLEAR_NICKNAME`) مع اللقب القديم.
+```json
+{ "cleared": true }
+```

@@ -3,6 +3,7 @@ import { api } from "../../lib/api";
 import { useApi } from "../../lib/hooks";
 import { useToast } from "../../lib/toast";
 import { Badge, Empty, ErrorBox, PageHeader, Spinner, Toggle } from "../../components/ui";
+import LabelIcon from "../../components/LabelIcon";
 
 const SEVERITIES = ["POSITIVE", "MINOR", "SERIOUS"];
 
@@ -61,7 +62,10 @@ export default function Labels() {
       <form className="card label-form" onSubmit={create}>
         <label className="field">
           <span>New label</span>
+          <span className="label-input">
+            <span className="label-slot"><LabelIcon name={form.name} severity={form.severity} size={22} /></span>
           <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Great explainer" />
+          </span>
         </label>
         <div className="field">
           <span>Allowed stars</span>
@@ -80,7 +84,7 @@ export default function Labels() {
       {loading && !data ? (
         <Spinner />
       ) : !data?.length ? (
-        <Empty icon="#" title="No labels yet" />
+        <Empty icon="pin" title="No labels yet" />
       ) : (
         <div className="table-wrap card">
           <table className="table">
@@ -90,7 +94,12 @@ export default function Labels() {
             <tbody>
               {data.map((l) => (
                 <tr key={l.id} className={l.isActive ? "" : "is-cut"}>
-                  <td><strong>{l.name}</strong></td>
+                  <td>
+                    <span className="label-name">
+                      <span className="label-slot"><LabelIcon name={l.name} severity={l.severity} size={22} /></span>
+                      <strong>{l.name}</strong>
+                    </span>
+                  </td>
                   <td>
                     <select className="select select-sm" value={l.severity} onChange={(e) => patch(l, { severity: e.target.value })} aria-label="Severity">
                       {SEVERITIES.map((s) => <option key={s}>{s}</option>)}

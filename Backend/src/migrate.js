@@ -8,7 +8,7 @@ async function migrate() {
   // 1) داتابيس جديدة فاضية؟ بنعمل كل الجداول من db/schema.sql
   const exists = await db.query(`SELECT to_regclass('public.users') AS t`);
   if (!exists.rows[0].t) {
-    console.log("📦 Empty database — creating tables from db/schema.sql");
+    console.log("📦 Empty database, creating tables from db/schema.sql");
     const schema = fs.readFileSync(path.join(__dirname, "..", "db", "schema.sql"), "utf8");
     const client = await db.connect();
     try {
@@ -31,6 +31,13 @@ async function migrate() {
       ADD COLUMN IF NOT EXISTS leaderboard_show_averages BOOLEAN NOT NULL DEFAULT true,
       ADD COLUMN IF NOT EXISTS leaderboard_title         TEXT    NOT NULL DEFAULT 'Top students of the week',
       ADD COLUMN IF NOT EXISTS leaderboard_shared_at     TIMESTAMPTZ
+  `);
+
+  // 3) شارة اللقب: كل مستخدم بيقدر يحط لقب قصير + أيقونة بكسل جنب اسمه
+  await db.query(`
+    ALTER TABLE users
+      ADD COLUMN IF NOT EXISTS nickname      TEXT,
+      ADD COLUMN IF NOT EXISTS nickname_icon TEXT
   `);
 }
 

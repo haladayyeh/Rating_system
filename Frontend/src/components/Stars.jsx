@@ -1,27 +1,14 @@
 import { useState } from "react";
+import PixelIcon from "./PixelIcon";
 
 // Ratings are 1–3 stars.
 const MAX = 3;
 
-function StarIcon({ size }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" />
-    </svg>
-  );
-}
+// Pixel star sprite per rating level: 1 red, 2 gold, 3 teal
+export const LEVEL_STAR = { 1: "star-red", 2: "star-gold", 3: "star-teal" };
 
-// Big picker star: longer points, rounded tips (rounded by the stroke in CSS)
-const BIG_STAR = "M12 2.7L14.41 9.58L21.7 9.75L15.9 14.17L18 21.15L12 17L6 21.15L8.1 14.17L2.3 9.75L9.59 9.58Z";
-function BigStarIcon({ size }) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d={BIG_STAR} />
-    </svg>
-  );
-}
-
-// Read-only display; supports fractional values (e.g. 2.4)
+// Read-only display (averages, rating lists); gold pixel stars.
+// Supports fractional values (e.g. 2.4): the gold layer is clipped over a grey one.
 export function Stars({ value, size = 18 }) {
   const v = value ?? 0;
   return (
@@ -30,9 +17,9 @@ export function Stars({ value, size = 18 }) {
         const fill = Math.max(0, Math.min(1, v - i));
         return (
           <span key={i} className="star" style={{ width: size, height: size }}>
-            <span className="star-empty"><StarIcon size={size} /></span>
+            <span className="star-empty"><PixelIcon name="star-gold" size={size} /></span>
             <span className="star-full" style={{ width: `${fill * 100}%` }}>
-              <StarIcon size={size} />
+              <PixelIcon name="star-gold" size={size} />
             </span>
           </span>
         );
@@ -48,7 +35,7 @@ export const STAR_MEANING = {
 };
 
 // Big interactive picker for the rating modal:
-// 3 big stars — hover to preview, click to choose. The chosen stars fill one after another.
+// 3 big stars, hover to preview, click to choose. The chosen stars fill one after another.
 export function StarPicker({ value, onChange }) {
   const [hover, setHover] = useState(null);
   const [pulse, setPulse] = useState(0); // changes on every pick, so the fill animation replays
@@ -97,7 +84,8 @@ export function StarPicker({ value, onChange }) {
               className={`big-star-icon ${n <= (value ?? 0) ? "is-picked" : ""}`}
               style={{ animationDelay: `${(n - 1) * 90}ms` }}
             >
-              <BigStarIcon size={44} />
+              {/* lit stars all take the color of the current level; the rest are grey */}
+              <PixelIcon name={n <= shown ? LEVEL_STAR[shown] : "star-gold"} size={44} />
             </span>
           </button>
         ))}

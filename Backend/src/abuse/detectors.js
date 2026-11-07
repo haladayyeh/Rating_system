@@ -131,7 +131,7 @@ function detectGroup({ ratings, name }) {
       cases.push({
         type: "GROUP",
         severity: Number(stars) === 1 ? "HIGH" : "MEDIUM",
-        summary: `${burst.length} students (${raters.map((id) => name[id]).join(", ")}) gave ${name[rateeId]} exactly the same rating — ${stars} star${stars === "1" ? "" : "s"} with "${labels || "no labels"}" — within ${fmtMin(minutes(burst[0].created_at, burst[burst.length - 1].created_at))}.`,
+        summary: `${burst.length} students (${raters.map((id) => name[id]).join(", ")}) gave ${name[rateeId]} exactly the same rating: ${stars} star${stars === "1" ? "" : "s"} with "${labels || "no labels"}", within ${fmtMin(minutes(burst[0].created_at, burst[burst.length - 1].created_at))}.`,
         studentIds: [rateeId, ...raters],
         ratingIds: burst.map((r) => r.id),
         key: `GROUP:${key}`,

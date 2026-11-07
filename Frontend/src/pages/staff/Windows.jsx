@@ -35,7 +35,7 @@ export default function Windows() {
       {loading && !data ? (
         <Spinner />
       ) : !data?.length ? (
-        <Empty icon="◷" title="No voting windows yet">Create one to let students start rating.</Empty>
+        <Empty icon="clock" title="No voting windows yet">Create one to let students start rating.</Empty>
       ) : (
         <ul className="windows">
           {data.map((w) => {

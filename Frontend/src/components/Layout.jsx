@@ -3,21 +3,24 @@ import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../lib/auth";
 import { Avatar, Logo } from "./ui";
 import { ThemeToggle } from "../lib/theme";
+import PixelIcon from "./PixelIcon";
+import NameBadge, { BadgeEditor } from "./NameBadge";
 
 const STAFF_NAV = [
-  { to: "/staff", label: "Overview", icon: "◉", end: true },
-  { to: "/staff/students", label: "Students", icon: "☰" },
-  { to: "/staff/ratings", label: "Ratings", icon: "★" },
-  { to: "/staff/participation", label: "Participation", icon: "◔" },
-  { to: "/staff/abuse", label: "Abuse cases", icon: "⚑" },
-  { to: "/staff/leaderboard", label: "Leaderboard", icon: "▲" },
-  { to: "/staff/labels", label: "Labels", icon: "#" },
-  { to: "/staff/windows", label: "Voting windows", icon: "◷" },
+  { to: "/staff", label: "Overview", icon: "house", end: true },
+  { to: "/staff/students", label: "Students", icon: "heart" },
+  { to: "/staff/ratings", label: "Ratings", icon: "star-gold" },
+  { to: "/staff/participation", label: "Participation", icon: "check" },
+  { to: "/staff/abuse", label: "Abuse cases", icon: "exclamation" },
+  { to: "/staff/leaderboard", label: "Leaderboard", icon: "trophy" },
+  { to: "/staff/labels", label: "Labels", icon: "pin" },
+  { to: "/staff/windows", label: "Voting windows", icon: "clock" },
 ];
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const [editingBadge, setEditingBadge] = useState(false);
   const location = useLocation();
   const isStaff = user.role === "STAFF";
   const nav = STAFF_NAV;
@@ -37,10 +40,7 @@ export default function Layout() {
             <ThemeToggle />
           <div className="topbar-user">
             <Avatar name={user.name} size={34} />
-            <div className="topbar-user-info">
-              <strong>{user.name}</strong>
-              <span className="mono">@{user.login}</span>
-            </div>
+            <UserInfo user={user} className="topbar-user-info" onEdit={() => setEditingBadge(true)} />
             <button className="icon-btn" onClick={logout} title="Log out" aria-label="Log out">
               ⏻
             </button>
@@ -50,6 +50,7 @@ export default function Layout() {
         <main className="content">
           <Outlet />
         </main>
+        {editingBadge && <BadgeEditor onClose={() => setEditingBadge(false)} />}
       </div>
     );
   }
@@ -68,17 +69,14 @@ export default function Layout() {
         <nav className="nav">
           {nav.map((n) => (
             <NavLink key={n.to} to={n.to} end={n.end} className="nav-link">
-              <span className="nav-icon" aria-hidden="true">{n.icon}</span>
+              <span className="nav-icon"><PixelIcon name={n.icon} size={20} /></span>
               {n.label}
             </NavLink>
           ))}
         </nav>
         <div className="sidebar-user">
           <Avatar name={user.name} size={36} />
-          <div className="sidebar-user-info">
-            <strong>{user.name}</strong>
-            <span className="mono">@{user.login}</span>
-          </div>
+          <UserInfo user={user} className="sidebar-user-info" onEdit={() => setEditingBadge(true)} />
           <button className="icon-btn" onClick={logout} title="Log out" aria-label="Log out">
             ⏻
           </button>
@@ -97,6 +95,27 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      {editingBadge && <BadgeEditor onClose={() => setEditingBadge(false)} />}
     </div>
+  );
+}
+
+// Name + badge of whoever is signed in. Clicking it opens the badge editor.
+function UserInfo({ user, className, onEdit }) {
+  return (
+    <button
+      type="button"
+      className={`${className} user-edit`}
+      onClick={onEdit}
+      title={user.nickname ? "Edit your name badge" : "Add a name badge"}
+    >
+      <strong>{user.name}</strong>
+      {user.nickname ? (
+        <NameBadge nickname={user.nickname} icon={user.nicknameIcon} size="sm" />
+      ) : (
+        <span className="mono">@{user.login}</span>
+      )}
+      <span className="user-edit-hint">{user.nickname ? "Edit badge" : "+ Add badge"}</span>
+    </button>
   );
 }

@@ -1,16 +1,36 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useApi } from "../../lib/hooks";
+import { api } from "../../lib/api";
+import { useToast } from "../../lib/toast";
 import { avg, formatDate } from "../../lib/format";
 import { Stars } from "../../components/Stars";
 import InvalidateModal from "../../components/InvalidateModal";
 import { Avatar, Badge, Empty, ErrorBox, Spinner, Stat, Tabs } from "../../components/ui";
+import LabelIcon from "../../components/LabelIcon";
+import NameBadge from "../../components/NameBadge";
 
 export default function StudentDetail() {
   const { id } = useParams();
   const { data, error, loading, reload } = useApi(`/staff/students/${id}`);
   const [tab, setTab] = useState("received");
   const [invalidating, setInvalidating] = useState(null);
+  const [clearing, setClearing] = useState(false);
+  const toast = useToast();
+
+  async function clearNickname() {
+    if (!window.confirm(`Remove the badge "${data.student.nickname}" from ${data.student.name}?`)) return;
+    setClearing(true);
+    try {
+      await api(`/staff/students/${id}/nickname`, { method: "DELETE" });
+      toast("Badge removed");
+      reload();
+    } catch (e) {
+      toast(e.message, "error");
+    } finally {
+      setClearing(false);
+    }
+  }
 
   if (loading && !data) return <Spinner />;
   if (error) return <><Link to="/staff/students" className="link back">← Students</Link><ErrorBox error={error} onRetry={reload} /></>;
@@ -26,9 +46,17 @@ export default function StudentDetail() {
         <div className="profile-info">
           <h1>{student.name}</h1>
           <span className="mono muted">@{student.login}</span>
+          {student.nickname && (
+            <div className="profile-badge">
+              <NameBadge nickname={student.nickname} icon={student.nicknameIcon} />
+              <button className="btn btn-ghost btn-sm" disabled={clearing} onClick={clearNickname}>
+                Remove badge
+              </button>
+            </div>
+          )}
         </div>
         <div className="profile-stats">
-          <Stat label="Average" value={student.average !== null ? avg(student.average) : "—"} hint={<Stars value={student.average} size={14} />} />
+          <Stat label="Average" value={student.average !== null ? avg(student.average) : "-"} hint={<Stars value={student.average} size={14} />} />
           <Stat label="Received" value={received.length} />
           <Stat label="Given" value={given.length} />
         </div>
@@ -40,6 +68,7 @@ export default function StudentDetail() {
           <div className="chips">
             {labelsReceived.map((l) => (
               <span key={l.name} className={`chip chip-static chip-${(l.severity || "minor").toLowerCase()}`}>
+                <LabelIcon name={l.name} severity={l.severity} size={18} />
                 {l.name} <span className="chip-count">{l.count}</span>
               </span>
             ))}
@@ -57,7 +86,7 @@ export default function StudentDetail() {
       />
 
       {rows.length === 0 ? (
-        <Empty icon="★" title={`No ratings ${tab} yet`} />
+        <Empty icon="heart-empty" title={`No ratings ${tab} yet`} />
       ) : (
         <ul className="rating-list">
           {rows.map((r) => (
@@ -73,13 +102,13 @@ export default function StudentDetail() {
               </div>
               <div className="chips">
                 {r.labels.map((l) => (
-                  <Badge key={l.name} kind={l.severity}>{l.name}</Badge>
+                  <Badge key={l.name} kind={l.severity}><LabelIcon name={l.name} severity={l.severity} size={14} />{l.name}</Badge>
                 ))}
               </div>
               {r.explanation && <blockquote className="explanation">{r.explanation}</blockquote>}
               <div className="rating-foot">
                 {r.is_invalidated ? (
-                  <span className="text-danger small">Invalidated — {r.invalidated_reason}</span>
+                  <span className="text-danger small">Invalidated: {r.invalidated_reason}</span>
                 ) : (
                   <button className="btn btn-ghost btn-sm" onClick={() => setInvalidating(r.id)}>Invalidate</button>
                 )}

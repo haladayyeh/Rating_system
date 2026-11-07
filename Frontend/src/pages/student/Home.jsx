@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../../lib/auth";
 import { useApi } from "../../lib/hooks";
+import { useState } from "react";
 import { avg, formatDate } from "../../lib/format";
 import { Stars } from "../../components/Stars";
 import Countdown from "../../components/Countdown";
+import PixelIcon from "../../components/PixelIcon";
 import { ErrorBox, PageHeader, Progress, Spinner } from "../../components/ui";
+import NameBadge, { BadgeEditor } from "../../components/NameBadge";
 
 export default function StudentHome() {
   const { user } = useAuth();
@@ -12,6 +15,7 @@ export default function StudentHome() {
   const votes = useApi("/me/votes");
   const win = useApi("/windows/current");
   const board = useApi("/leaderboard");
+  const [editingBadge, setEditingBadge] = useState(false);
 
   const loading = rating.loading || votes.loading || win.loading;
   const error = rating.error || votes.error || win.error;
@@ -23,7 +27,19 @@ export default function StudentHome() {
 
   return (
     <>
-      <PageHeader eyebrow="42 Amman" title={`Hello ${firstName}!`} />
+      <PageHeader eyebrow="42 Amman" title={`Hello ${firstName}!`}>
+        {user.nickname ? (
+          <button type="button" className="badge-btn" onClick={() => setEditingBadge(true)} title="Edit your name badge">
+            <NameBadge nickname={user.nickname} icon={user.nicknameIcon} />
+            <span className="muted small">Edit</span>
+          </button>
+        ) : (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditingBadge(true)}>
+            <PixelIcon name="medal" size={16} /> Add a name badge
+          </button>
+        )}
+      </PageHeader>
+      {editingBadge && <BadgeEditor onClose={() => setEditingBadge(false)} />}
       <ErrorBox error={error} onRetry={reloadAll} />
       {board.data?.shared && <LeaderboardAnnouncement board={board.data} />}
       {loading && !error ? (
@@ -51,7 +67,7 @@ export default function StudentHome() {
           </section>
 
           <section className="card">
-            <p className="eyebrow">My rating</p>
+            <p className="eyebrow eyebrow-icon"><PixelIcon name="star-gold" size={18} />My rating</p>
             {rating.data?.visible ? (
               <div className="my-rating">
                 <span className="my-rating-num">{avg(rating.data.average)}</span>
@@ -64,11 +80,10 @@ export default function StudentHome() {
                 <p className="muted">{rating.data?.message || "Not enough ratings yet."}</p>
               </div>
             )}
-            <p className="fine">Only your average is shown — never who rated you or which labels.</p>
           </section>
 
           <section className="card">
-            <p className="eyebrow">My votes</p>
+            <p className="eyebrow eyebrow-icon"><PixelIcon name="coin" size={18} />My votes</p>
             {v && v.max > 0 ? (
               <>
                 <div className="votes-line">
@@ -82,9 +97,9 @@ export default function StudentHome() {
                       <strong className="text-warn">Rate at least {v.min - v.used} more</strong> to reach the minimum of {v.min}.
                     </>
                   ) : v.remaining > 0 ? (
-                    <>Minimum reached ✓ — {v.remaining} vote{v.remaining === 1 ? "" : "s"} left.</>
+                    <><PixelIcon name="check" size={14} className="inline-icon" /> Minimum reached, {v.remaining} vote{v.remaining === 1 ? "" : "s"} left.</>
                   ) : (
-                    <>All votes used. Thanks for participating!</>
+                    <><PixelIcon name="trophy" size={14} className="inline-icon" /> All votes used. Thanks for participating!</>
                   )}
                 </p>
               </>
@@ -105,9 +120,7 @@ function LeaderboardAnnouncement({ board }) {
     <Link to="/leaderboard" className="announce">
       <span className="announce-stars" aria-hidden="true">
         {[0, 1, 2].map((i) => (
-          <svg key={i} viewBox="0 0 24 24" style={{ animationDelay: `${i * 0.25}s` }}>
-            <path d="M12 2.7L14.41 9.58L21.7 9.75L15.9 14.17L18 21.15L12 17L6 21.15L8.1 14.17L2.3 9.75L9.59 9.58Z" />
-          </svg>
+          <PixelIcon key={i} name="star-gold" size={i === 1 ? 40 : 32} style={{ animationDelay: `${i * 0.25}s` }} />
         ))}
       </span>
       <div className="announce-text">
@@ -118,7 +131,7 @@ function LeaderboardAnnouncement({ board }) {
             {top.map((e) => (
               <li key={e.rank} className={e.isMe ? "is-me" : ""}>
                 <span className={`rank-chip rank-${e.rank}`}>{e.rank}</span>
-                {e.name}{e.isMe && " (you)"}
+                {e.name}{e.isMe && " (you)"} <NameBadge nickname={e.nickname} icon={e.nicknameIcon} size="sm" />
               </li>
             ))}
           </ol>

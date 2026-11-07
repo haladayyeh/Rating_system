@@ -9,6 +9,7 @@ const studentRoutes = require("./routes/student");
 const staffRoutes = require("./routes/staff");
 const abuseRoutes = require("./routes/abuse");
 const leaderboardRoutes = require("./routes/leaderboard");
+const profileRoutes = require("./routes/profile");
 const migrate = require("./migrate");
 const {
   loginLimiter, ratingLimiter, apiLimiter, securityHeaders, checkSecrets,
@@ -70,6 +71,9 @@ app.use("/api/staff", staffRoutes);
 
 // لوحة Top students: /api/staff/leaderboard و /api/leaderboard
 app.use("/api", leaderboardRoutes);
+
+// شارة اللقب: /api/me/nickname (طالب أو ستاف)
+app.use("/api", profileRoutes);
 
 // روابط الطالب: /api/me/rating و /api/ratings ...
 app.use("/api", studentRoutes);

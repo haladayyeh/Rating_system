@@ -16,7 +16,7 @@ const MAX_TOP_N = 100;
 async function getRanking(windowId) {
   const r = await db.query(
     `SELECT ROW_NUMBER() OVER (ORDER BY AVG(r.stars) DESC, COUNT(*) DESC, u.name)::int AS rank,
-            u.id, u.login, u.name,
+            u.id, u.login, u.name, u.nickname, u.nickname_icon AS "nicknameIcon",
             ROUND(AVG(r.stars)::numeric, 2)::float AS average,
             COUNT(*)::int AS "ratingsCount"
      FROM ratings r
@@ -121,10 +121,12 @@ router.get("/leaderboard", onlyStudents, async (req, res) => {
     title: w.leaderboardTitle,
     windowTitle: w.title,
     showAverages: w.showAverages,
-    // بنرجّع الاسم بس (بدون id) — والمتوسط بس إذا الستاف سمح
+    // بنرجّع الاسم بس (بدون id) : والمتوسط بس إذا الستاف سمح
     entries: top.map((s) => ({
       rank: s.rank,
       name: s.name,
+      nickname: s.nickname,
+      nicknameIcon: s.nicknameIcon,
       ...(w.showAverages ? { average: s.average } : {}),
       isMe: s.id === req.user.id,
     })),
