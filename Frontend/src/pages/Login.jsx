@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/auth";
+import { api } from "../lib/api";
 import { Logo } from "../components/ui";
 import PixelIcon from "../components/PixelIcon";
 
@@ -87,6 +88,11 @@ export default function Login() {
   const [shake, setShake] = useState(0);
   const [unlocked, setUnlocked] = useState(false);
   const lastLogin = useRef("");
+  const [demo, setDemo] = useState(null); // { signup, password } when demo sign-up is on
+
+  useEffect(() => {
+    api("/auth/demo").then((d) => d?.signup && setDemo(d)).catch(() => {});
+  }, []);
 
   async function submit(e) {
     e.preventDefault();
@@ -139,6 +145,15 @@ export default function Login() {
           </div>
           <h2>Sign in</h2>
           <p className="muted">Use your intra login.</p>
+          {demo && (
+            <div className="demo-hint">
+              <PixelIcon name="gift" size={20} />
+              <span>
+                <strong>Demo:</strong> new here? Type any username and the password{" "}
+                <code>{demo.password}</code> to create a student account.
+              </span>
+            </div>
+          )}
           <label className="field">
             <span>Login</span>
             <span className="input-icon">

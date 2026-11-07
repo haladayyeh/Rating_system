@@ -867,6 +867,13 @@ textarea.input { resize: vertical; min-height: 80px; }
 }
 .login-card h2 { font-size: 1.8rem; }
 .login-card > .muted { margin: 4px 0 24px; }
+.demo-hint {
+  display: flex; align-items: flex-start; gap: 10px; margin: -10px 0 20px; padding: 10px 12px;
+  font-size: 0.85rem; line-height: 1.4; color: var(--ink);
+  background: var(--yellow-soft); box-shadow: inset 3px 0 0 var(--yellow-dark);
+}
+.demo-hint .px-icon { flex: none; margin-top: 1px; }
+.demo-hint code { font-family: var(--mono); font-weight: 700; padding: 0 4px; background: rgba(255, 199, 44, 0.35); }
 .login-card .btn { margin-top: 8px; padding: 13px; }
 
 /* ============ Student: slim top bar instead of a sidebar ============ */

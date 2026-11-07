@@ -39,6 +39,9 @@ services:
       DATABASE_URL: postgres://rank:${POSTGRES_PASSWORD:-rank}@db:5432/rank
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
+      # Demo mode: logging in with a new username + password 123456 creates a student account.
+      # Turn off for real use: DEMO_SIGNUP=false in .env
+      DEMO_SIGNUP: ${DEMO_SIGNUP:-true}
       PORT: 3000
     # No host port: Traefik reaches the app over the edge-traefik network.
     networks:

@@ -304,3 +304,21 @@ Errors 400:
 ```json
 { "cleared": true }
 ```
+
+## 6. Demo sign-up (DEMO_SIGNUP=true)
+
+- `GET /api/auth/demo` → `{ "signup": true, "password": "123456" }` (or `{ "signup": false }`).
+- `POST /api/auth/login` with a username that doesn't exist yet and password `123456` creates a STUDENT
+  account (login lowercased, name made from the login, e.g. `ali-shami` → "Ali Shami") and logs in.
+  - Usernames: 2–20 chars, `a-z 0-9 - _` → otherwise 400.
+  - Max 10 new accounts per IP per hour → 429.
+  - Existing accounts are unaffected: a wrong password is still 401.
+
+## 7. Voting windows can't overlap
+
+`POST /api/staff/windows` and `PATCH /api/staff/windows/:id` return **409** if the resulting window is active and
+its time range overlaps another active window (compared to the minute). One ending exactly when the next starts is fine.
+Turned-off windows (`isActive: false`) don't count, but turning one back on is checked too.
+```json
+{ "error": "This overlaps with “Week 1 voting” (7 Nov 2026, 23:46 – 10 Nov 2026, 23:46). Voting windows can't overlap: change the dates or turn the other window off first." }
+```

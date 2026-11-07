@@ -380,6 +380,51 @@ router.delete("/labels/:id", onlyStaff, async (req, res) => {
 const WINDOW_FIELDS = `id, title, starts_at AS "startsAt", ends_at AS "endsAt",
   min_votes AS "minVotes", max_votes AS "maxVotes", is_active AS "isActive"`;
 
+// ما بنسمح لفترتين شغّالات (is_active) يتداخلوا بالوقت.
+// فترة بتخلص بنفس لحظة ما الثانية بتبلش مسموح (مش تداخل).
+const fmtWindowDate = (d) =>
+  new Date(d).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Amman" });
+
+class WindowOverlap extends Error {}
+
+// بتشغّل write (INSERT أو UPDATE) جوا transaction، وبعدين بتفحص إذا الفترة الناتجة بتتداخل
+// مع فترة شغّالة ثانية. إذا في تداخل → rollback ورسالة واضحة فيها اسم الفترة الثانية وتواريخها.
+async function writeWindow(write) {
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+    // قفل للكتابة بس (القراءة بتضل شغالة): عشان طلبين بنفس اللحظة ما يعدّوا الفحص سوا
+    await client.query("LOCK TABLE voting_windows IN SHARE ROW EXCLUSIVE MODE");
+    const r = await write(client);
+    const w = r.rows[0];
+    if (w && w.isActive) {
+      const clash = await client.query(
+        `SELECT title, starts_at, ends_at FROM voting_windows
+         WHERE is_active AND id <> $1
+           -- بالدقيقة (زي فورم التواريخ)، عشان أجزاء الثانية ما تعمل "تداخل" مش ظاهر
+           AND date_trunc('minute', starts_at) < date_trunc('minute', $3::timestamptz)
+           AND date_trunc('minute', ends_at) > date_trunc('minute', $2::timestamptz)
+         ORDER BY starts_at LIMIT 1`,
+        [w.id, w.startsAt, w.endsAt]
+      );
+      if (clash.rows.length > 0) {
+        const c = clash.rows[0];
+        throw new WindowOverlap(
+          `This overlaps with “${c.title}” (${fmtWindowDate(c.starts_at)}, ${fmtWindowDate(c.ends_at)}). ` +
+          "Voting windows can't overlap: change the dates or turn the other window off first."
+        );
+      }
+    }
+    await client.query("COMMIT");
+    return r;
+  } catch (err) {
+    await client.query("ROLLBACK").catch(() => {});
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 router.get("/windows", onlyStaff, async (req, res) => {
   const r = await db.query(`SELECT ${WINDOW_FIELDS} FROM voting_windows ORDER BY starts_at DESC`);
   res.json(r.rows);
@@ -389,14 +434,15 @@ router.post("/windows", onlyStaff, async (req, res) => {
   const { title, startsAt, endsAt, minVotes, maxVotes } = req.body;
   if (!startsAt || !endsAt) return res.status(400).json({ error: "startsAt and endsAt are required" });
   try {
-    const r = await db.query(
+    const r = await writeWindow((client) => client.query(
       `INSERT INTO voting_windows (title, starts_at, ends_at, min_votes, max_votes)
        VALUES ($1, $2, $3, $4, $5) RETURNING ${WINDOW_FIELDS}`,
       [title || "Voting window", startsAt, endsAt, minVotes ?? 1, maxVotes ?? 5]
-    );
+    ));
     await audit(req.user.id, "CREATE_WINDOW", req.body);
     res.status(201).json(r.rows[0]);
   } catch (err) {
+    if (err instanceof WindowOverlap) return res.status(409).json({ error: err.message });
     if (err.code === "23514" || err.code === "22007" || err.code === "22008") {
       return res.status(400).json({ error: "Check the dates (end after start) and min ≤ max" });
     }
@@ -407,7 +453,7 @@ router.post("/windows", onlyStaff, async (req, res) => {
 router.patch("/windows/:id", onlyStaff, async (req, res) => {
   const { title, startsAt, endsAt, minVotes, maxVotes, isActive } = req.body;
   try {
-    const r = await db.query(
+    const r = await writeWindow((client) => client.query(
       `UPDATE voting_windows SET
          title = COALESCE($2, title),
          starts_at = COALESCE($3, starts_at),
@@ -418,11 +464,12 @@ router.patch("/windows/:id", onlyStaff, async (req, res) => {
        WHERE id::text = $1 RETURNING ${WINDOW_FIELDS}`,
       [req.params.id, title ?? null, startsAt ?? null, endsAt ?? null,
        minVotes ?? null, maxVotes ?? null, isActive ?? null]
-    );
+    ));
     if (r.rows.length === 0) return res.status(404).json({ error: "Window not found" });
     await audit(req.user.id, "UPDATE_WINDOW", { id: req.params.id, ...req.body });
     res.json(r.rows[0]);
   } catch (err) {
+    if (err instanceof WindowOverlap) return res.status(409).json({ error: err.message });
     if (err.code === "23514" || err.code === "22007" || err.code === "22008") {
       return res.status(400).json({ error: "Check the dates (end after start) and min ≤ max" });
     }
