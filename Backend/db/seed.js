@@ -13,7 +13,8 @@ const STUDENTS = [
   ["noor", "Noor Awad"], ["hamza", "Hamza Odeh"], ["leen", "Leen Barakat"],
   ["mohammad", "Mohammad Issa"], ["tala", "Tala Jaber"], ["ali", "Ali Shami"],
   ["maya", "Maya Khatib"], ["faris", "Faris Daher"], ["jana", "Jana Rifai"],
-  ["bashar", "Bashar Zoubi"], ["hala", "Hala Masri"],
+  ["bashar", "Bashar Zoubi"], ["hala", "Hala Masri"], ["aeleimat", "Abdalrhman Olimat"],
+  ["ratieh", "Raghad Atieh"]
 ];
 
 // [الاسم, النجوم المسموحة, النوع] - من الدوكيومنت
